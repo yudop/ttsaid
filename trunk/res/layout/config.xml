@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/linearLayout1"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:layout_weight="0.38"
+	android:orientation="vertical" >
+	<TextView
+		android:id="@+id/textView1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="5dip"
+		android:layout_marginTop="10dip"
+		android:text="@string/timeSpeechInterval"
+		android:textAppearance="?android:attr/textAppearanceLarge" >
+	</TextView>
+	<LinearLayout
+		android:id="@+id/linearLayout2"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:weightSum="1" >
+		<SeekBar
+			android:id="@+id/interval"
+			android:layout_width="50dip"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:layout_weight="0.44" >
+		</SeekBar>
+		<TextView
+			android:id="@+id/intervalValue"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:layout_marginTop="5dip"
+			android:text="@string/off" >
+		</TextView>
+	</LinearLayout>
+	<TextView
+		android:id="@+id/textView2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="5dip"
+		android:layout_marginTop="10dip"
+		android:text="@string/selectLanguage"
+		android:textAppearance="?android:attr/textAppearanceLarge" >
+	</TextView>
+	<RadioGroup
+		android:id="@+id/radioGroup1"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal" >
+		<RadioButton
+			android:id="@+id/en"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:checked="true"
+			android:text="@string/english" >
+		</RadioButton>
+		<RadioButton
+			android:id="@+id/es"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:text="@string/spanish" >
+		</RadioButton>
+	</RadioGroup>
+	<LinearLayout
+		android:id="@+id/linearLayout3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dip" >
+		<TextView
+			android:id="@+id/textView3"
+			android:layout_width="232dip"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="5dip"
+			android:layout_marginTop="5dip"
+			android:text="@string/screenEvent"
+			android:textAppearance="?android:attr/textAppearanceLarge" >
+		</TextView>
+		<ToggleButton
+			android:id="@+id/screenEvent"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" >
+		</ToggleButton>
+	</LinearLayout>
+	<LinearLayout
+		android:id="@+id/linearLayout5"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dip"
+		android:layout_marginLeft="2dip"
+		android:layout_marginRight="2dip"
+		android:background="@drawable/border"
+		android:orientation="vertical" >
+		<LinearLayout
+			android:orientation="horizontal"
+			android:id="@+id/linearLayout6"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="5dip" >
+			<TextView
+				android:id="@+id/TextView01"
+				android:layout_width="230dip"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="5dip"
+				android:layout_marginTop="5dip"
+				android:text="@string/incomingCall"
+				android:textAppearance="?android:attr/textAppearanceLarge" />
+			<ToggleButton
+				android:id="@+id/phoneNumber"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+		</LinearLayout>
+		<LinearLayout
+			android:id="@+id/linearLayout4"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="5dip"
+			android:layout_marginBottom="5dip" >
+						<TextView
+				android:id="@+id/textView4"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="15dip"
+				android:layout_marginRight="5dip"
+				android:text="@string/incomingMessage"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+			<EditText
+				android:id="@+id/incomingMessage"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_marginRight="5dip"
+				android:text="Incoming Call!" />
+		</LinearLayout>
+	</LinearLayout>
+</LinearLayout>
