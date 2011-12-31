@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_gravity="center"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/speech_bg"
+    android:orientation="vertical">
+    <ImageButton android:layout_gravity="right" android:src="@drawable/config" android:layout_width="wrap_content" android:id="@+id/config" android:background="@android:color/transparent" android:layout_height="wrap_content"></ImageButton>
+    <ImageButton
+    	android:background="@android:color/transparent"
+    	android:layout_width="wrap_content"
+    	android:src="@drawable/speech"
+    	android:id="@+id/play"
+    	android:layout_gravity="center" android:layout_height="wrap_content">
+    </ImageButton>
+</LinearLayout>

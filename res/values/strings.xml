@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TTS Aid</string>
+    <string name="version">v. 1.0.0</string>
+    <string name="off">Off</string>
+    <string name="spanish">Español</string>
+    <string name="english">English</string>
+    <string name="screenEvent">Screen Event</string>
+    <string name="incomingCall">Incoming Call</string>
+    <string name="selectLanguage">Select Language</string>
+    <string name="timeSpeechInterval">Time Speech Interval</string>
+    <string name="incomingMessage">Message</string>
+</resources>
