@@ -10,4 +10,7 @@
     <string name="selectLanguage">Select Language</string>
     <string name="timeSpeechInterval">Time Speech Interval</string>
     <string name="incomingMessage">Message</string>
+    <string name="french">Française</string>
+    <string name="timeFormat">[h]:[m][p], [M] [d]</string>
+    <string name="timeMessage">Message</string>
 </resources>
