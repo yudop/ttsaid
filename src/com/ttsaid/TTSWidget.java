@@ -45,7 +45,7 @@ public class TTSWidget extends AppWidgetProvider {
 	public void onReceive(final Context context, final Intent intent) {
 		super.onReceive(context, intent);
 
-		Log.d("onreceive", "recebendo mensagem: " + intent.getAction());
+		Log.d("TTSWidget onreceive", "receiving action: " + intent.getAction());
 		if (LocalService.PLAY_SOUND.equals(intent.getAction())) {
 			Intent play = new Intent(context, LocalService.class);
 			play.putExtra("PLAY_SOUND", true);
@@ -58,38 +58,30 @@ public class TTSWidget extends AppWidgetProvider {
 	}
 
 	@Override
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
-			int[] appWidgetIds) {
+	public void onUpdate(Context context, AppWidgetManager appWidgetManager,int[] appWidgetIds) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 		final int N = appWidgetIds.length;
-		RemoteViews views = new RemoteViews(context.getPackageName(),
-				R.layout.main);
+		RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.main);
 
 		/* start service */
 
 		Intent intent = new Intent(context, LocalService.class);
 		context.startService(intent);
 
-		Log.d("TTSAid", "on update ");
-		// Perform this loop procedure for each App Widget that belongs to this
-		// provider
+		Log.d("TTSWidget", "on update ");
+		/* update every app from this provider */
 		for (int i = 0; i < N; i++) {
 			int appWidgetId = appWidgetIds[i];
-
-			/* set play action on widget canvas */
-
+			/* set play sound action on widget canvas */
 			Intent play = new Intent(LocalService.PLAY_SOUND);
 			play.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-					0, play, PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context,0, play, PendingIntent.FLAG_UPDATE_CURRENT);
 			views.setOnClickPendingIntent(R.id.play, pendingIntent);
-
+			/* set config activity for small icon */
 			Intent config = new Intent(context, TTSActivity.class);
 			config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-			PendingIntent pendingConfig = PendingIntent.getActivity(context, 0,
-					config, PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent pendingConfig = PendingIntent.getActivity(context, 0,config, PendingIntent.FLAG_UPDATE_CURRENT);
 			views.setOnClickPendingIntent(R.id.config, pendingConfig);
-
 			/* update widget */
 			appWidgetManager.updateAppWidget(appWidgetId, views);
 		}

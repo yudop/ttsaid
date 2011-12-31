@@ -96,7 +96,7 @@ public class LocalService extends Service {
 
 		// Display a notification about us starting. We put an icon in the
 		// status bar.
-		showToast("create funcionou");
+		showToast("TTSAid onCreate() service");
 		// showNotification();
 	}
 
@@ -115,24 +115,15 @@ public class LocalService extends Service {
 			receiver = new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
-
-					showToast("recebeu broadcast: " + intent.getAction());
-
+					showToast("receiving broadcast: " + intent.getAction());
 					if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 						if (prefs.getBoolean("SET_SCREEN_EVENT", false)) {
 							playTime();
 						}
-					} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED
-							.equals(intent.getAction())) {
-						showToast("chegou chamada");
-						if (intent.hasExtra(TelephonyManager.EXTRA_STATE)
-								&& intent.getStringExtra(
-										TelephonyManager.EXTRA_STATE).equals(
-										TelephonyManager.EXTRA_STATE_RINGING)) {
-							if (prefs.getBoolean("SET_PHONE_NUMBER", false)) {
-								playPhoneNumber(intent
-										.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
-							}
+					} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
+						showToast("incoming call");
+						if (intent.hasExtra(TelephonyManager.EXTRA_STATE) && intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_PHONE_NUMBER", false)) {
+							playPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 						}
 					}
 				}
@@ -151,12 +142,12 @@ public class LocalService extends Service {
 		}
 		/* verify if we want to speak the current date&time */
 		if (intent.getBooleanExtra("PLAY_SOUND", false)) {
-			showToast("tocando mensagem " + SERVICE_ID);
+			showToast("playing current date&time");
 			playTime();
 		}
 		/* verify if this is an automatic play time event */
 		if (intent.getBooleanExtra("PLAY_AND_ENQUEUE", false)) {
-			showToast("PLAY_AND_ENQUEUE " + interval + "  st:" + started);
+			showToast("playing enqueued event");
 			playTime();
 			enQueue();
 		}
@@ -187,7 +178,7 @@ public class LocalService extends Service {
 		minutes = minutes / 15 * 15;
 		/* adjust calendar */
 		ct.setTimeInMillis(minutes * 60 * 1000);
-		showToast("criando alarme " + ct.getTime().getHours() + String.format(":%02d", ct.getTime().getMinutes()));
+		showToast("creating enqueued alarm " + ct.getTime().getHours() + String.format(":%02d", ct.getTime().getMinutes()));
 		alarmManager.set(AlarmManager.RTC_WAKEUP, ct.getTimeInMillis(),alarmIntent);
 	}
 
@@ -262,7 +253,7 @@ public class LocalService extends Service {
 		switch(type) {
 		case skip:
 			if(mTTS.isSpeaking()) {
-				showToast("TTS em uso, abortando");
+				showToast("TTS in use, skiping");
 				return;
 			}
 			mode=TextToSpeech.QUEUE_FLUSH;
@@ -289,7 +280,7 @@ public class LocalService extends Service {
 		if(mTTS != null) mTTS.shutdown();
 		if(alarmManager != null && alarmIntent != null) alarmManager.cancel(alarmIntent);
 		started = false;
-		showToast("Fechando servico: " + SERVICE_ID);
+		showToast("closing TTSAid service");
 	}
 
 	@Override
