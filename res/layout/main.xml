@@ -5,11 +5,20 @@
     android:layout_height="wrap_content"
     android:background="@drawable/speech_bg"
     android:orientation="vertical">
-    <ImageButton android:layout_gravity="right" android:src="@drawable/config" android:layout_width="wrap_content" android:id="@+id/config" android:background="@android:color/transparent" android:layout_height="wrap_content"></ImageButton>
     <ImageButton
+    	android:contentDescription="widget configuration"
+    	android:layout_gravity="right"
+    	android:src="@drawable/btncfg"
+    	android:layout_width="wrap_content"
+    	android:id="@+id/config"
+    	android:background="@android:color/transparent"
+    	android:layout_height="wrap_content">
+    </ImageButton>
+    <ImageButton
+    	android:contentDescription="widget main button"
     	android:background="@android:color/transparent"
     	android:layout_width="wrap_content"
-    	android:src="@drawable/speech"
+    	android:src="@drawable/button"
     	android:id="@+id/play"
     	android:layout_gravity="center" android:layout_height="wrap_content">
     </ImageButton>
