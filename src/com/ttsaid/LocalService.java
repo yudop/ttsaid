@@ -22,8 +22,12 @@ package com.ttsaid;
 
 //import java.util.Locale;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Formatter;
 
 import com.ttsaid.R;
 
@@ -164,9 +168,11 @@ public class LocalService extends Service {
 		}
 		if(interval == 0) {
 			if(alarmIntent != null) {
+				showToast("removing previous alarm: " + alarmIntent.toString());
 				alarmManager.cancel(alarmIntent);				
 			}
 			alarmIntent=null;
+			return;
 		}
 		Intent play = new Intent(LocalService.PLAY_AND_ENQUEUE);
 		alarmIntent = PendingIntent.getBroadcast(LocalService.this, 0, play,PendingIntent.FLAG_UPDATE_CURRENT);
@@ -201,55 +207,35 @@ public class LocalService extends Service {
 	}
 
 	public void playTime() {
-		String[] Months_en = { "January", "February", "March", "April", "May",
-				"June", "July", "August", "September", "October", "November",
-				"December" };
-		String[] Months_es = { "enero", "febrero", "marzo", "abril", "mayo",
-				"junio", "julio", "agosto", "setiembre", "octubre",
-				"noviembre", "diciembre" };
-		String[] Months = Months_en;
-		int lang = 0;
-
-		/* check language */
-		if (prefs.getString("SET_LANGUAGE", "en").equals("en")) {
-			Months = Months_en;
-			lang = 0;
-		} else if (prefs.getString("SET_LANGUAGE", "en").equals("es")) {
-			Months = Months_es;
-			lang = 1;
-		}
-		/* get current date and time */
-		Time tm = new Time();
-		tm.setToNow();
-
-		String str = tm.format("%I:%M %p, ");
-
-		if (lang == 0) {
-			str += Months[new Integer(tm.format("%m")) - 1] + tm.format(" %d");
-		} else {
-			str += tm.format("%d de ")
-					+ Months[new Integer(tm.format("%m")) - 1];
-		}
-		playSound(str, playType.skip);
+		Locale loc = new Locale(prefs.getString("SET_LANGUAGE", "en"));
+		StringBuilder sb = new StringBuilder();
+		Date date = new Date(System.currentTimeMillis());
+		
+		Formatter formatter = new Formatter(sb,loc);
+		formatter.format(loc,"%tA, ",date);
+		formatter.format(loc,"%tB ",date);
+		formatter.format(loc,"%te. ",date);
+		formatter.format(loc,"%tr ",date);
+		playSound(sb.toString(), playType.skip);
 	}
 
 	public void playSound(String str,playType type) {
-		Locale loc = Locale.getDefault();
+		Locale loc;
 		int mode;
 
 		if (!started || mTTS == null) {
 			return;
 		}
 		/* check language */
-		if (prefs.getString("SET_LANGUAGE", "en").equals("en")) {
-			loc = new Locale("en");
-		} else if (prefs.getString("SET_LANGUAGE", "en").equals("es")) {
-			loc = new Locale("es");
-		}
+
+		loc = new Locale(prefs.getString("SET_LANGUAGE", "en"));
+
 		/* verify if language can be applied */
 		if (mTTS.isLanguageAvailable(loc) == TextToSpeech.LANG_AVAILABLE) {
 			mTTS.setLanguage(loc);
-		}		
+		} else {
+			mTTS.setLanguage(Locale.getDefault());
+		}
 		switch(type) {
 		case skip:
 			if(mTTS.isSpeaking()) {

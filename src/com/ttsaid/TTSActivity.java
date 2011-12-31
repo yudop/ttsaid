@@ -37,6 +37,7 @@ import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.ToggleButton;
 
@@ -45,9 +46,10 @@ public class TTSActivity extends Activity {
 	private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private int interval = 0;
 	private int languageId;
-	private String language = "en";
+	private String language;
 	private boolean screenEvent = false;
 	private boolean phoneNumber = false;
+	private String timeFormat;
 
 	private SharedPreferences prefs;
 
@@ -92,8 +94,11 @@ public class TTSActivity extends Activity {
 		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", screenEvent);
 		phoneNumber = prefs.getBoolean("SET_PHONE_NUMBER", phoneNumber);
 		language = prefs.getString("SET_LANGUAGE", language);
+
 		if (language == "es") {
 			languageId = R.id.es;
+		} else if(language == "fr") {
+			languageId = R.id.fr;
 		} else {
 			languageId = R.id.en;
 		}
@@ -125,11 +130,11 @@ public class TTSActivity extends Activity {
 							int progress, boolean fromUser) {
 						String hour = "";
 						int m;
-
+						
 						interval = progress;
 						if (progress == 0) {
-							((TextView) findViewById(R.id.intervalValue))
-									.setText("Off");
+							((TextView) findViewById(R.id.intervalValue)).setText(getString(R.string.off));
+							return;
 						}
 						if (progress > 3) {
 							hour = new Integer(progress / 4).toString();
@@ -140,8 +145,7 @@ public class TTSActivity extends Activity {
 						} else {
 							hour = m + " min";
 						}
-						((TextView) findViewById(R.id.intervalValue))
-								.setText(hour);
+						((TextView) findViewById(R.id.intervalValue)).setText(hour);
 					}
 				});
 
@@ -199,14 +203,12 @@ public class TTSActivity extends Activity {
 
 		Intent play = new Intent(LocalService.PLAY_SOUND);
 		play.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(
-				TTSActivity.this, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(TTSActivity.this, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.play, pendingIntent);
 
 		Intent config = new Intent(TTSActivity.this, TTSActivity.class);
 		config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-		PendingIntent pendingConfig = PendingIntent.getActivity(
-				TTSActivity.this, 0, config, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingConfig = PendingIntent.getActivity(TTSActivity.this, 0, config, PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.config, pendingConfig);
 
 		/* update view */
@@ -228,6 +230,8 @@ public class TTSActivity extends Activity {
 
 		if (languageId == R.id.es) {
 			language = "es";
+		} else if (languageId == R.id.fr) {
+			language = "fr";
 		} else {
 			language = "en";
 		}
