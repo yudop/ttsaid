@@ -46,14 +46,17 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.ContactsContract.PhoneLookup;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
-import android.text.format.Time;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class LocalService extends Service {
 
@@ -67,8 +70,8 @@ public class LocalService extends Service {
 	public static final String PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
 	public static final String PREFS_DB = "com.ttsaid.prefs.db";
 
+	private final String SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private enum playType {flush,skip,add};
-	
 	private static final int SERVICE_ID = 0x00674656;
 
 	/* private */
@@ -129,6 +132,19 @@ public class LocalService extends Service {
 						if (intent.hasExtra(TelephonyManager.EXTRA_STATE) && intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_PHONE_NUMBER", false)) {
 							playPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 						}
+					} else if(SMS_RECEIVED_ACTION.equals(intent.getAction()) && prefs.getBoolean("SET_SMS_RECEIVE", false)) {
+						Bundle bundle = intent.getExtras();
+						if(bundle == null) {
+							return;
+						}
+						Object[] pdus = (Object[])bundle.get("pdus");
+						final SmsMessage[] messages = new SmsMessage[pdus.length];
+						for (int i = 0; i < pdus.length; i++) {
+							messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+						}
+						if (messages.length > -1) {
+							playSMS(messages[0].getMessageBody(),messages[0].getOriginatingAddress());
+						}
 					}
 				}
 			};
@@ -136,6 +152,7 @@ public class LocalService extends Service {
 					TelephonyManager.ACTION_PHONE_STATE_CHANGED));
 			registerReceiver(receiver,
 					new IntentFilter(Intent.ACTION_SCREEN_ON));
+			registerReceiver(receiver,new IntentFilter(SMS_RECEIVED_ACTION));
 			started = true;
 		}
 		/* adjust interval in quarters of hour */
@@ -188,6 +205,21 @@ public class LocalService extends Service {
 		alarmManager.set(AlarmManager.RTC_WAKEUP, ct.getTimeInMillis(),alarmIntent);
 	}
 
+	public void playSMS(String str,String number)
+	{
+		Cursor cursor;
+
+		Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,Uri.encode(number));
+		cursor = getContentResolver().query(uri,new String[] { PhoneLookup.DISPLAY_NAME }, null, null, null);
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			number = cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+		}
+		str = String.format("%s %s. %s",prefs.getString("SMS_MESSAGE","SMS Received!"),number,str);  
+		playSound(str, playType.flush);
+		playSound(str,  playType.add);
+	}
+	
 	public void playPhoneNumber(String str) {
 		Cursor cursor;
 

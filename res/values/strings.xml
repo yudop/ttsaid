@@ -13,4 +13,6 @@
     <string name="french">Française</string>
     <string name="timeFormat">[h]:[m][p], [M] [d]</string>
     <string name="timeMessage">Message</string>
+    <string name="IncomingSMS">Incoming SMS</string>
+    <string name="selectedLanguage">Selected Language</string>
 </resources>

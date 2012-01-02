@@ -20,49 +20,74 @@
 
 package com.ttsaid;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import com.ttsaid.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.CompoundButton;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.EditText;
-import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class TTSActivity extends Activity {
 	private int MY_DATA_CHECK_CODE = 0x0001;
 	private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-	private int interval = 0;
-	private int languageId;
-	private String language;
-	private boolean screenEvent = false;
-	private boolean phoneNumber = false;
-	private String timeFormat;
-
+	private int interval;
+	private boolean screenEvent;
+	private boolean phoneNumber;
+	private boolean smsReceive;
 	private SharedPreferences prefs;
-
+	private TextToSpeech mTTS;
+	private int selected = 0;
+	private int SELECT_LANGUAGE_ACTIVITY = 0x01021848;
+	
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == MY_DATA_CHECK_CODE) {
 			if (resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
 				// missing data, install it
 				Intent installIntent = new Intent();
-				installIntent
-						.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+				installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
 				startActivity(installIntent);
+			} else {
+				mTTS = new TextToSpeech(TTSActivity.this,new OnInitListener() {
+					public void onInit(int status) {
+					}
+				});
 			}
+		} else if(requestCode == SELECT_LANGUAGE_ACTIVITY && resultCode == RESULT_OK) {
+			((EditText) findViewById(R.id.language)).setText(data.getStringExtra("folderName"));
 		}
 	}
 
@@ -74,6 +99,11 @@ public class TTSActivity extends Activity {
 		// out of the widget placement if they press the back button.
 		setResult(RESULT_CANCELED);
 
+		/* verify if TTS data is up to date */
+		Intent checkIntent = new Intent();
+		checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+		startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
+		
 		//
 		// preferences database
 		//
@@ -91,18 +121,10 @@ public class TTSActivity extends Activity {
 		/* get parameters */
 
 		interval = prefs.getInt("SET_INTERVAL", interval);
-		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", screenEvent);
-		phoneNumber = prefs.getBoolean("SET_PHONE_NUMBER", phoneNumber);
-		language = prefs.getString("SET_LANGUAGE", language);
-
-		if (language == "es") {
-			languageId = R.id.es;
-		} else if(language == "fr") {
-			languageId = R.id.fr;
-		} else {
-			languageId = R.id.en;
-		}
-
+		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", false);
+		phoneNumber = prefs.getBoolean("SET_PHONE_NUMBER", false);
+		smsReceive = prefs.getBoolean("SET_SMS_RECEIVE", false);
+		
 		// get widget id
 
 		if (extras != null) {
@@ -149,14 +171,6 @@ public class TTSActivity extends Activity {
 					}
 				});
 
-		((RadioGroup) findViewById(R.id.radioGroup1))
-				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-					public void onCheckedChanged(RadioGroup group, int checkedId) {
-						languageId = checkedId;
-					}
-				});
-
 		((ToggleButton) findViewById(R.id.screenEvent))
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -175,18 +189,42 @@ public class TTSActivity extends Activity {
 					}
 				});
 
+		((ToggleButton) findViewById(R.id.smsReceive))
+		.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				smsReceive = isChecked;
+			}
+		});
+		
+		((Button) findViewById(R.id.searchLanguage)).setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Locale [] loclist = Locale.getAvailableLocales();
+				ArrayList<String> list = new ArrayList<String>();
+				
+				for(int x=0;x < loclist.length;x++) {
+					if(mTTS != null && mTTS.isLanguageAvailable(loclist[x]) == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
+						list.add(loclist[x].getLanguage());
+					}
+				}
+				
+				final Intent newIntent = new Intent(TTSActivity.this, SelectLanguage.class);
+				newIntent.putExtras(new Bundle());
+				newIntent.putExtra("list_items",(String []) list.toArray());
+				startActivityForResult(newIntent,SELECT_LANGUAGE_ACTIVITY);
+			}
+		});
+		
 		/* set current values */
 
 		((SeekBar) findViewById(R.id.interval)).setProgress(interval);
-		((RadioButton) findViewById(languageId)).setChecked(true);
 		((ToggleButton) findViewById(R.id.screenEvent)).setChecked(screenEvent);
 		((ToggleButton) findViewById(R.id.phoneNumber)).setChecked(phoneNumber);
 		((EditText) findViewById(R.id.incomingMessage)).setText(prefs.getString("INCOMING_MESSAGE","Incoming Call!"));
-
-		/* verify if TTS data is up to date */
-		Intent checkIntent = new Intent();
-		checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-		startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
+		((ToggleButton) findViewById(R.id.smsReceive)).setChecked(smsReceive);
+		((EditText) findViewById(R.id.smsMessage)).setText(prefs.getString("SMS_MESSAGE","SMS Received from"));
+		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en"));
 
 	}
 
@@ -228,20 +266,16 @@ public class TTSActivity extends Activity {
 
 		/* save preferences */
 
-		if (languageId == R.id.es) {
-			language = "es";
-		} else if (languageId == R.id.fr) {
-			language = "fr";
-		} else {
-			language = "en";
-		}
-
 		SharedPreferences.Editor prefset = prefs.edit();
 		prefset.putInt("SET_INTERVAL", interval);
 		prefset.putBoolean("SET_SCREEN_EVENT", screenEvent);
 		prefset.putBoolean("SET_PHONE_NUMBER", phoneNumber);
-		prefset.putString("SET_LANGUAGE", language);
+		prefset.putBoolean("SET_SMS_RECEIVE", smsReceive);
 		prefset.putString("INCOMING_MESSAGE",((EditText) findViewById(R.id.incomingMessage)).getText().toString());		
+		prefset.putString("SMS_MESSAGE",((EditText) findViewById(R.id.smsMessage)).getText().toString());
+		String lang =  ((EditText) findViewById(R.id.language)).getText().toString();
+		if(lang.length() == 0) lang = "en";
+		prefset.putString("SET_LANGUAGE",lang);
 		prefset.commit();
 
 		/* start service */
@@ -251,5 +285,10 @@ public class TTSActivity extends Activity {
 
 		finish();
 	}
-
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		if(mTTS != null) mTTS.shutdown();
+	}
 }
