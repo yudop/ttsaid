@@ -20,8 +20,6 @@
 
 package com.ttsaid;
 
-//import java.util.Locale;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;

@@ -27,7 +27,6 @@ import com.ttsaid.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
