@@ -100,9 +100,15 @@ public class TTSActivity extends Activity {
 
 		// set current view
 
+		String versionName;
+		
+		try {
+			versionName = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch(Exception e) {
+			versionName = "?";
+		}
 		setContentView(R.layout.config);
-		setTitle(getString(R.string.app_name) + " "
-				+ getString(R.string.version));
+		setTitle(String.format("%s v. %s",getString(R.string.app_name),versionName));
 
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();

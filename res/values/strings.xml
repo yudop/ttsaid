@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TTS Aid</string>
-    <string name="version">v. 1.0.1</string>
     <string name="off">Off</string>
     <string name="spanish">Español</string>
     <string name="english">English</string>
