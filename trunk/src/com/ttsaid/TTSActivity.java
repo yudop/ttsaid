@@ -21,43 +21,27 @@
 package com.ttsaid;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import com.ttsaid.R;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class TTSActivity extends Activity {
@@ -69,7 +53,6 @@ public class TTSActivity extends Activity {
 	private boolean smsReceive;
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
-	private int selected = 0;
 	private int SELECT_LANGUAGE_ACTIVITY = 0x01021848;
 	
 	/* get result from activities */
@@ -87,7 +70,7 @@ public class TTSActivity extends Activity {
 				});
 			}
 		} else if(requestCode == SELECT_LANGUAGE_ACTIVITY && resultCode == RESULT_OK) {
-			((EditText) findViewById(R.id.language)).setText(data.getStringExtra("folderName"));
+			((EditText) findViewById(R.id.language)).setText(data.getStringExtra("selected"));
 		}
 	}
 
@@ -136,16 +119,12 @@ public class TTSActivity extends Activity {
 
 		((SeekBar) findViewById(R.id.interval)).setMax(8);
 		((SeekBar) findViewById(R.id.interval)).setKeyProgressIncrement(1);
-		((SeekBar) findViewById(R.id.interval))
-				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+		((SeekBar) findViewById(R.id.interval)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 					public void onStopTrackingTouch(SeekBar seekBar) {
-						// TODO Auto-generated method stub
-
 					}
 
 					public void onStartTrackingTouch(SeekBar seekBar) {
-						// TODO Auto-generated method stub
 					}
 
 					public void onProgressChanged(SeekBar seekBar,
@@ -204,14 +183,25 @@ public class TTSActivity extends Activity {
 				ArrayList<String> list = new ArrayList<String>();
 				
 				for(int x=0;x < loclist.length;x++) {
-					if(mTTS != null && mTTS.isLanguageAvailable(loclist[x]) == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
-						list.add(loclist[x].getLanguage());
+					int avail = mTTS.isLanguageAvailable(loclist[x]);
+					if(mTTS != null && (avail == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && avail == TextToSpeech.LANG_AVAILABLE))) {
+						String str = String.format("%s %s,%s,%s",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage(),loclist[x].getCountry());
+						int y;
+		
+						for(y=0;y < list.size();y++) {
+							if(((String) list.get(y)).equals(str)) {
+								break;
+							}
+						}
+						if(y >= list.size()) {
+							list.add(str);
+						}
 					}
 				}
 				
 				final Intent newIntent = new Intent(TTSActivity.this, SelectLanguage.class);
 				newIntent.putExtras(new Bundle());
-				newIntent.putExtra("list_items",(String []) list.toArray());
+				newIntent.putExtra("list_items",list.toArray(new String[list.size()]));
 				startActivityForResult(newIntent,SELECT_LANGUAGE_ACTIVITY);
 			}
 		});
@@ -224,7 +214,7 @@ public class TTSActivity extends Activity {
 		((EditText) findViewById(R.id.incomingMessage)).setText(prefs.getString("INCOMING_MESSAGE","Incoming Call!"));
 		((ToggleButton) findViewById(R.id.smsReceive)).setChecked(smsReceive);
 		((EditText) findViewById(R.id.smsMessage)).setText(prefs.getString("SMS_MESSAGE","SMS Received from"));
-		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en"));
+		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en_US"));
 
 	}
 

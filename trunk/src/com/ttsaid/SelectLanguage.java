@@ -1,94 +1,103 @@
 package com.ttsaid;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
 
+import android.app.LauncherActivity.ListItem;
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 public class SelectLanguage extends ListActivity {
-	private int selected = 0;
 	private ArrayList<ListItem> list = new ArrayList<ListItem>();
+	Intent intent;
 
 	/* list activity creation */
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 
-		final Intent intent = getIntent();
-		MyArrayAdapter currentAdapter;
+		intent = getIntent();
 
 		/* get current folder */
 		String [] listItems = intent.getStringArrayExtra("list_items");
-
-		Toast.makeText(this,"listItems" + ((listItems != null) ? listItems.length : 0), 1).show();		
-		
-		if(true)return;
-		
 		list.clear();
 		for(int x=0;x < listItems.length;x++) {
-			ListItem item = new ListItem(listItems[x],"","");
+			ListItem item = new ListItem(listItems[x]);
 			list.add(item);
 		}
-		currentAdapter = new MyArrayAdapter(this,R.layout.rowlayout,list);
+
+		/* create adapter */
+
+		ArrayAdapter<ListItem> adapter = new ArrayAdapter<ListItem>(this,R.layout.rowlayout,list);
+		adapter.sort(new Comparator<ListItem>() {
+			public int compare(ListItem a,ListItem b) {
+				return(a.listName.compareTo(b.listName));
+			}
+		});		
 
 		/* put items on list */
-		setListAdapter(currentAdapter);
+		setListAdapter(adapter);
 
-		/* set current selected item */
-		SelectLanguage.this.setSelection(selected);
-
-		/* get list view to override long click event */
-		ListView list = getListView();
+		/* set title */
+		setTitle(getString(R.string.selectLanguage));
 		
-		/* list item long click (select folder) */
-		list.setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> av, View v,int position, long id) {
-				ListItem item = (ListItem) getListAdapter().getItem(position);
+		/* get list view */
+		ListView listview = getListView();
+		
+		listview.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,int posit, long id) {
+				ListItem item = (ListItem) getListAdapter().getItem(posit);
 
 				setResult(RESULT_OK,intent);
-				intent.putExtra("selected",item.listName);
+				intent.putExtra("selected",item.getLangCode());
 				finish();
 				return false;
 			}
 		});
 	}
-	
-	/* list item click (go into folder tree) */
+
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		ListItem	item = (ListItem) getListAdapter().getItem(selected);
-		if(item.bt != null) {
-			item.bt.setChecked(false);
-		}
-		item = (ListItem) getListAdapter().getItem(position);
-		if(item.bt != null) {
-			item.bt.setChecked(true);
-		}
-	}
-	
+		// TODO Auto-generated method stub
+		super.onListItemClick(l, v, position, id);
+	}	
+
 	private class ListItem {
-        private String	listName;
-        private String	listLanguage;
-        private String	listCountry;
-        public	RadioButton bt;
+        private String	listName="";
+        private String	listLanguage="";
+        private String	listCountry="";
         
         /* constructor */
-        public ListItem(String name,String language,String country) {
-            listName = name;
-            listLanguage = language;
-            listCountry = country;
+        public ListItem(String str) {
+			String [] l = str.split(",");
+
+			if(l.length > 2) {
+				listCountry=l[2];
+			}
+			if(l.length > 1) {
+				listLanguage=l[1];
+			}
+			if(l.length > 0) {
+				listName=l[0];
+			}			
+        }
+
+        public String getLangCode()
+        {
+        	String str = listLanguage;
+        	if(listCountry.length() > 0) {
+        		str+="_"+listCountry;
+        	}
+        	return(str);
         }
         
         @Override
@@ -99,39 +108,8 @@ public class SelectLanguage extends ListActivity {
             }
             return(str+=")");
         }
+        
+        
 	}
 	
-	public class MyArrayAdapter extends ArrayAdapter<ListItem> {
-        private int resource;
-        private LayoutInflater vi;
-
-        /* constructor */
-        public MyArrayAdapter(Context context, int _resource, List<ListItem> listitems) {
-            super(context, _resource, listitems);
-            vi = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            resource = _resource;
-        }
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LinearLayout newView;
-            
-            /* get item for the given list position */
-            ListItem item = getItem(position);
-
-            /* if the list item is not yet created, create it */
-            if (convertView == null) {
-                newView = new LinearLayout(getContext());
-                vi.inflate(resource, newView);
-            } else {
-                newView = (LinearLayout)convertView;
-            }
-            /* set list item text */
-            item.bt = (RadioButton) newView.findViewById(R.id.langButton);
-            item.bt.setText(item.toString());
-            item.bt.setChecked((position == selected));
-            
-            return newView;
-        }		
-	}
 }
