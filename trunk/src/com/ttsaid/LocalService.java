@@ -24,6 +24,7 @@ package com.ttsaid;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Formatter;
 
@@ -42,6 +43,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -58,7 +60,7 @@ public class LocalService extends Service {
 
 	/* show debug messages */
 
-	final private boolean showDebugMsg = false;
+	final private boolean showDebugMsg = true;
 
 	/* static */
 
@@ -77,11 +79,13 @@ public class LocalService extends Service {
 
 	/* private */
 	
-	private NotificationManager mNM;
-	private TextToSpeech		mTTS = null;
-	private SharedPreferences	prefs;
-	private BroadcastReceiver	receiver;
-	private PendingIntent		alarmIntent;
+	private NotificationManager		mNM;
+	private TextToSpeech			mTTS = null;
+	private SharedPreferences		prefs;
+	private BroadcastReceiver		receiver;
+	private PendingIntent			alarmIntent;
+	private boolean					duringCall = false;
+	private HashMap<String,String>	myHash = new HashMap<String, String>();
 
 	/**
 	 * Class for clients to access. Because we know this service always runs in
@@ -108,6 +112,7 @@ public class LocalService extends Service {
 
 		/* create handle when message is starting */
 		if (!started) {
+		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
 			alarmIntent = null;
 			prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
 			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -125,8 +130,16 @@ public class LocalService extends Service {
 						}
 					} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
 						showToast("incoming call");
-						if (intent.hasExtra(TelephonyManager.EXTRA_STATE) && intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_PHONE_NUMBER", false)) {
-							playPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
+						if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
+							if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_PHONE_NUMBER", false)) {
+								playPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
+							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+								duringCall = true;
+								showToast("during call");
+							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+								duringCall = false;
+								showToast("call disconnected");
+							}
 						}
 					} else if(SMS_RECEIVED_ACTION.equals(intent.getAction()) && prefs.getBoolean("SET_SMS_RECEIVE", false)) {
 						Bundle bundle = intent.getExtras();
@@ -287,7 +300,13 @@ public class LocalService extends Service {
 		}
 		/* speak current time */
 		showToast("speak " + str);
-		mTTS.speak(str, mode, null);
+		if(!duringCall) {
+			try {
+				mTTS.speak(str, mode,myHash);
+			} catch(Exception e) {
+				showToast(e.toString());
+			}
+		}
 	}
 
 	@Override
