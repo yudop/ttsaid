@@ -3,18 +3,14 @@ package com.ttsaid;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import android.app.LauncherActivity.ListItem;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.Toast;
 
 public class SelectLanguage extends ListActivity {
 	private ArrayList<ListItem> list = new ArrayList<ListItem>();

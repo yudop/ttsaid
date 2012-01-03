@@ -52,15 +52,13 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class LocalService extends Service {
 
 	/* show debug messages */
 
-	final private boolean showDebugMsg = true;
+	final private boolean showDebugMsg = false;
 
 	/* static */
 
