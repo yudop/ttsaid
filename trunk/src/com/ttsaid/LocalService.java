@@ -244,12 +244,16 @@ public class LocalService extends Service {
 		formatter.format(loc,"%tB ",date);
 		formatter.format(loc,"%te. ",date);
 		formatter.format(loc,"%tr ",date);
-		playSound(sb.toString(), playType.skip);
+		
+		if(prefs.getBoolean("SET_TIME_SPEECH", false)) {
+			playSound(sb.toString(), playType.skip);
+		}
 	}
 
 	public void playSound(String str,playType type) {
-		Locale loc;
-		int mode;
+		Locale	loc;
+		int		mode;
+		int		avail;
 
 		if (!started || mTTS == null) {
 			return;
@@ -259,7 +263,8 @@ public class LocalService extends Service {
 		loc = new Locale(prefs.getString("SET_LANGUAGE", "en"));
 
 		/* verify if language can be applied */
-		if (mTTS.isLanguageAvailable(loc) == TextToSpeech.LANG_AVAILABLE) {
+		avail = mTTS.isLanguageAvailable(loc); 
+		if (avail == TextToSpeech.LANG_AVAILABLE || avail == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
 			mTTS.setLanguage(loc);
 		} else {
 			mTTS.setLanguage(Locale.getDefault());
