@@ -188,12 +188,8 @@ public class LocalService extends Service {
 		}
 		/* verify if we want to speak the current date&time */
 		if (intent.getBooleanExtra("PLAY_SOUND", false)) {
-			if(!prefs.getBoolean("SET_TIME_SPEECH", false)) {
-				Toast.makeText(LocalService.this,"Time playback is disabled. Please activate it on settings",Toast.LENGTH_LONG).show();
-			} else {
-				showToast("playing current date&time");
-				playTime();
-			}
+			showToast("playing current date&time");
+			playTime();
 		}
 		/* verify if this is an automatic play time event */
 		if (intent.getBooleanExtra("PLAY_AND_ENQUEUE", false)) {
@@ -278,9 +274,7 @@ public class LocalService extends Service {
 		formatter.format(loc,"%te. ",date);
 		formatter.format(loc,"%tr ",date);
 		
-		if(prefs.getBoolean("SET_TIME_SPEECH", false)) {
-			playSound(sb.toString(), playType.skip);
-		}
+		playSound(sb.toString(), playType.skip);
 	}
 
 	public void playSound(String str,playType type) {

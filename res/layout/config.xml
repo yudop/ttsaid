@@ -19,36 +19,44 @@
             android:id="@+id/linearLayout13"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:weightSum="1" >
+            android:layout_marginTop="10dip">
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="10dip"
-                android:layout_marginTop="10dip"
-                android:text="@string/language"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <EditText
-                android:id="@+id/language"
-                android:layout_width="fill_parent"
+            <LinearLayout
+                android:id="@+id/linearLayout17"
+                android:layout_width="270dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dip"
-                android:layout_marginRight="5dip"
-                android:layout_weight="1"
-                android:editable="false"
-                android:inputType="none"
-                android:text="en" />
+                android:layout_marginLeft="3dip" >
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_marginTop="10dip"
+                    android:text="@string/language"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <EditText
+                    android:id="@+id/language"
+                    android:layout_width="90dip"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dip"
+                    android:layout_marginRight="5dip"
+                    android:layout_weight="0.63"
+                    android:editable="false"
+                    android:inputType="none"
+                    android:text="en" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/searchLanguage"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginRight="5dip"
+                android:layout_margin="0dp"
                 android:text="..." />
+
         </LinearLayout>
+
+
 
         <LinearLayout
             android:id="@+id/linearLayout15"
@@ -66,20 +74,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dip"
                 android:layout_marginTop="5dip" >
-
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="230dip"
-                    android:layout_height="fill_parent"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginTop="10dip"
-                    android:text="@string/timeSpeech"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <CheckBox
-                    android:id="@+id/timeSpeech"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
@@ -127,7 +121,7 @@
                 android:id="@+id/linearLayout3"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dip" >
+                android:layout_marginBottom="2dp" >
 
                 <TextView
                     android:id="@+id/textView3"
@@ -147,7 +141,65 @@
                     android:layout_marginLeft="5dip" />
 
             </LinearLayout>
-        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linearLayout14"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout
+                android:id="@+id/linearLayout9"
+                android:layout_width="225dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dip" >
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/from"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/fromTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dip"
+                    android:layout_marginRight="5dip"
+                    android:layout_weight="0.60"
+                    android:editable="false"
+                    android:inputType="none"
+                    android:text="@string/eightAm" />
+
+                <TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/to"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/toTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dip"
+                    android:layout_marginRight="5dip"
+                    android:layout_weight="0.74"
+                    android:editable="false"
+                    android:inputType="none"
+                    android:text="@string/fivePm" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/selectPeriod"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="0dp"
+                android:layout_marginLeft="5dip"
+                android:layout_marginRight="5dip"
+                android:text="..." />
+
+        </LinearLayout>        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/linearLayout5"
@@ -185,7 +237,7 @@
                 android:id="@+id/linearLayout4"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dip" >
+                android:layout_marginBottom="2dp" >
 
                 <TextView
                     android:id="@+id/textView4"
@@ -244,7 +296,7 @@
                 android:id="@+id/linearLayout12"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dip" >
+                android:layout_marginBottom="2dp" >
 
                 <TextView
                     android:id="@+id/textView13"
