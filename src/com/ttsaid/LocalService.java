@@ -58,13 +58,14 @@ public class LocalService extends Service {
 
 	/* show debug messages */
 
-	final private boolean showDebugMsg = false;
+	final private boolean showDebugMsg = true;
 
 	/* static */
 
-	public static final String PLAY_SOUND = "com.ttsaid.intent.action.PLAY_SOUND";
-	public static final String PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
-	public static final String PREFS_DB = "com.ttsaid.prefs.db";
+	public static final String	PLAY_SOUND = "com.ttsaid.intent.action.PLAY_SOUND";
+	public static final String	PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
+	public static final String	PREFS_DB = "com.ttsaid.prefs.db";
+	public static final int		ALARM_MIN_INTERVAL = 2;
 
 	private final String SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private enum playType {flush,skip,add};
@@ -84,7 +85,6 @@ public class LocalService extends Service {
 	private PendingIntent			alarmIntent;
 	private boolean					duringCall = false;
 	private HashMap<String,String>	myHash = new HashMap<String, String>();
-	
 	private boolean					ringMute = false;
 
 	/**
@@ -224,9 +224,9 @@ public class LocalService extends Service {
 		Calendar ct = Calendar.getInstance();
 
 		/* calculate number of minutes */
-		long minutes = (long) ((float) System.currentTimeMillis() / 1000. / 60. + interval * 15);
+		long minutes = (long) ((float) System.currentTimeMillis() / 1000. / 60. + interval * ALARM_MIN_INTERVAL);
 		/* adjust for last quarter before interval */
-		minutes = minutes / 15 * 15;
+		minutes = (minutes+1) / ALARM_MIN_INTERVAL * ALARM_MIN_INTERVAL;
 		/* adjust calendar */
 		ct.setTimeInMillis(minutes * 60 * 1000);
 		showToast("creating enqueued alarm " + ct.getTime().getHours() + String.format(":%02d", ct.getTime().getMinutes()));

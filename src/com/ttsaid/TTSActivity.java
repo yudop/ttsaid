@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -150,29 +151,13 @@ public class TTSActivity extends Activity {
 
 							public void onProgressChanged(SeekBar seekBar,
 									int progress, boolean fromUser) {
-								String hour = "";
-								int m;
-								
-								if (progress == 0) {
-									((TextView) view.findViewById(R.id.intervalValue)).setText(getString(R.string.off));
-									return;
-								}
-								if (progress > 3) {
-									hour = new Integer(progress / 4).toString();
-								}
-								m = new Integer(progress % 4 * 15);
-								if (hour.length() > 0) {
-									hour = hour + "h:" + String.format("%02d", m) + "m";
-								} else {
-									hour = m + " min";
-								}
-								((TextView) view.findViewById(R.id.intervalValue)).setText(hour);
+								setTimeInterval(view.findViewById(R.id.intervalValue),progress);
 							}
 						});
 				
 				dlg.setOnCancelListener(new OnCancelListener() {
 					public void onCancel(DialogInterface dialog) {
-						setTimeInterval(((SeekBar) view.findViewById(R.id.interval)).getProgress());
+						interval=setTimeInterval(TTSActivity.this.findViewById(R.id.intervalValue),((SeekBar) view.findViewById(R.id.interval)).getProgress());
 					}
 				});
 				((SeekBar) view.findViewById(R.id.interval)).setProgress(interval);
@@ -255,34 +240,32 @@ public class TTSActivity extends Activity {
 		((CheckBox) findViewById(R.id.smsReceive)).setChecked(smsReceive);
 		((EditText) findViewById(R.id.smsMessage)).setText(prefs.getString("SMS_MESSAGE","SMS Received from"));
 		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en_US"));
-		setTimeInterval(interval);
+		setTimeInterval(findViewById(R.id.intervalValue),interval);
 
 	}
 
-	private void setTimeInterval(int progress)
+	private int setTimeInterval(View view,int progress)
 	{
 		String hour = "";
 		int	m;
 		
-		interval = progress;
-		
-		if (interval == 0) {
-			((TextView) findViewById(R.id.intervalValue)).setText(getString(R.string.off));
-			return;
+		if (progress == 0) {
+			((TextView) view).setText(getString(R.string.off));
+			return(0);
 		}
-		if (interval > 3) {
+		if (progress > 3) {
 			hour = new Integer(interval / 4).toString();
 		}
-		m = new Integer(interval % 4 * 15);
+		m = new Integer(progress % 4 * LocalService.ALARM_MIN_INTERVAL);
 		if (hour.length() > 0) {
 			hour = hour + "h:" + String.format("%02d", m) + "m";
 		} else {
 			hour = m + " min";
 		}
-		((TextView) findViewById(R.id.intervalValue)).setText(hour);
+		((TextView) view).setText(hour);
+		return(progress);
 	}
 
-	
 	@Override
 	public void onBackPressed() {
 		// super.onBackPressed();
