@@ -60,7 +60,7 @@ public class TTSActivity extends Activity {
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
 	private int SELECT_LANGUAGE_ACTIVITY = 0x01021848;
-	
+
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == MY_DATA_CHECK_CODE) {
