@@ -84,6 +84,8 @@ public class LocalService extends Service {
 	private PendingIntent			alarmIntent;
 	private boolean					duringCall = false;
 	private HashMap<String,String>	myHash = new HashMap<String, String>();
+	
+	private boolean					ringMute = false;
 
 	/**
 	 * Class for clients to access. Because we know this service always runs in
@@ -110,6 +112,10 @@ public class LocalService extends Service {
 
 		/* create handle when message is starting */
 		if (!started) {
+			AudioManager mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+			if(mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
+				ringMute=true;
+			}			
 		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
 			alarmIntent = null;
 			prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
@@ -152,6 +158,14 @@ public class LocalService extends Service {
 						if (messages.length > -1) {
 							playSMS(messages[0].getMessageBody(),messages[0].getOriginatingAddress());
 						}
+					} else if(AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+						if(intent.getIntExtra(AudioManager.EXTRA_RINGER_MODE,-1) == AudioManager.RINGER_MODE_NORMAL) {
+							showToast("phone unmuted");
+							ringMute=false;
+						} else {
+							showToast("phone muted");
+							ringMute=true;
+						}
 					}
 				}
 			};
@@ -159,7 +173,10 @@ public class LocalService extends Service {
 					TelephonyManager.ACTION_PHONE_STATE_CHANGED));
 			registerReceiver(receiver,
 					new IntentFilter(Intent.ACTION_SCREEN_ON));
-			registerReceiver(receiver,new IntentFilter(SMS_RECEIVED_ACTION));
+			registerReceiver(receiver,
+					new IntentFilter(SMS_RECEIVED_ACTION));
+			registerReceiver(receiver,
+					new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
 			started = true;
 		}
 		/* adjust interval in quarters of hour */
@@ -302,7 +319,7 @@ public class LocalService extends Service {
 		}
 		/* speak current time */
 		showToast("speak " + str);
-		if(!duringCall) {
+		if(!duringCall && !ringMute) {
 			try {
 				mTTS.speak(str, mode,myHash);
 			} catch(Exception e) {
