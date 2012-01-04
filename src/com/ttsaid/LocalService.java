@@ -58,7 +58,7 @@ public class LocalService extends Service {
 
 	/* show debug messages */
 
-	final private boolean showDebugMsg = true;
+	final private boolean showDebugMsg = false;
 
 	/* static */
 
