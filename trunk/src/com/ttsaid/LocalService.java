@@ -51,6 +51,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -66,6 +67,8 @@ public class LocalService extends Service {
 	public static final String	PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
 	public static final String	PREFS_DB = "com.ttsaid.prefs.db";
 	public static final int		ALARM_MIN_INTERVAL = 15;
+	public static final int		FROM_PERIOD = ((8 << 8) | 0); // default 'from' period 8:00am
+	public static final int		TO_PERIOD = ((19 << 8) | 0); // default 'to' period 7:00pm
 
 	private final String SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private enum playType {flush,skip,add};
@@ -112,13 +115,15 @@ public class LocalService extends Service {
 
 		/* create handle when message is starting */
 		if (!started) {
+			/* get preferences database instance */
+			prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
+			/* get play back time working period */
 			AudioManager mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 			if(mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
 				ringMute=true;
 			}			
 		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
 			alarmIntent = null;
-			prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
 			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 			mTTS = new TextToSpeech(this, new OnInitListener() {
 				public void onInit(int status) {
@@ -130,7 +135,7 @@ public class LocalService extends Service {
 					showToast("receiving broadcast: " + intent.getAction());
 					if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 						if (prefs.getBoolean("SET_SCREEN_EVENT", false)) {
-							playTime();
+							playTime(false);
 						}
 					} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
 						showToast("incoming call");
@@ -189,12 +194,12 @@ public class LocalService extends Service {
 		/* verify if we want to speak the current date&time */
 		if (intent.getBooleanExtra("PLAY_SOUND", false)) {
 			showToast("playing current date&time");
-			playTime();
+			playTime(true);
 		}
 		/* verify if this is an automatic play time event */
 		if (intent.getBooleanExtra("PLAY_AND_ENQUEUE", false)) {
 			showToast("playing enqueued event");
-			playTime();
+			playTime(false);
 			enQueue();
 		}
 		/*
@@ -263,7 +268,25 @@ public class LocalService extends Service {
 		playSound(str,  playType.add);
 	}
 
-	public void playTime() {
+	public void playTime(boolean userpress) {
+		
+		if(!userpress) {
+			int		fromPeriod;
+			int		toPeriod;
+			Time	t = new Time();
+			int		tn;
+			
+			t.setToNow();
+			tn = new Integer(t.format("%H%M"));
+			fromPeriod = new Integer(String.format("%02d%02d",prefs.getInt("FROM_PERIOD",FROM_PERIOD) >> 8,prefs.getInt("FROM_PERIOD",FROM_PERIOD) & 0xff));
+			toPeriod   = new Integer(String.format("%02d%02d",prefs.getInt("TO_PERIOD",TO_PERIOD) >> 8,prefs.getInt("TO_PERIOD",TO_PERIOD) & 0xff));
+			
+			showToast("from: " + fromPeriod + " to: " + toPeriod + " now: " + tn);
+			
+			if(tn < fromPeriod || tn > toPeriod) {
+				return;
+			}
+		}
 		Locale loc = new Locale(prefs.getString("SET_LANGUAGE", "en"));
 		StringBuilder sb = new StringBuilder();
 		Date date = new Date(System.currentTimeMillis());

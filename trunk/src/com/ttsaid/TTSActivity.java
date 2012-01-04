@@ -119,10 +119,10 @@ public class TTSActivity extends Activity {
 		/* get parameters */
 
 		interval = prefs.getInt("SET_INTERVAL", interval);
-		int x = prefs.getInt("FROM_PERIOD",2048);
+		int x = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
 		fromPeriod[0] = x >> 8;
 		fromPeriod[1] = x & 0xff;
-		x = prefs.getInt("TO_PERIOD", 4352);
+		x = prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD);
 		toPeriod[0] = x >> 8;
 		toPeriod[1] = x & 0xff;
 		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", false);
