@@ -65,7 +65,7 @@ public class LocalService extends Service {
 	public static final String	PLAY_SOUND = "com.ttsaid.intent.action.PLAY_SOUND";
 	public static final String	PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
 	public static final String	PREFS_DB = "com.ttsaid.prefs.db";
-	public static final int		ALARM_MIN_INTERVAL = 2;
+	public static final int		ALARM_MIN_INTERVAL = 15;
 
 	private final String SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private enum playType {flush,skip,add};
