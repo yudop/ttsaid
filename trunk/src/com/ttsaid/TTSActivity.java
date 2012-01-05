@@ -52,17 +52,17 @@ import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.CheckBox;
 import android.widget.TimePicker;
-import android.widget.LinearLayout;
 
 public class TTSActivity extends Activity {
 	private int MY_DATA_CHECK_CODE = 0x0001;
 	private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private int interval;
 	private boolean screenEvent;
-	private boolean phoneNumber;
+	private boolean callerId;
 	private boolean smsReceive;
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
+	private String incomingMessage,smsMessage;
 	private int [] toPeriod = new int[2];
 	private int [] fromPeriod = new int[2];
 	private int SELECT_LANGUAGE_ACTIVITY = 0x01021848;
@@ -116,6 +116,9 @@ public class TTSActivity extends Activity {
 
 		/* get parameters */
 
+		incomingMessage = prefs.getString("INCOMING_MESSAGE","Incoming Call!");
+		smsMessage = prefs.getString("SMS_MESSAGE","SMS Received from");
+
 		interval = prefs.getInt("SET_INTERVAL", interval);
 		int x = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
 		fromPeriod[0] = x >> 8;
@@ -124,7 +127,7 @@ public class TTSActivity extends Activity {
 		toPeriod[0] = x >> 8;
 		toPeriod[1] = x & 0xff;
 		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", false);
-		phoneNumber = prefs.getBoolean("SET_PHONE_NUMBER", false);
+		callerId = prefs.getBoolean("SET_CALLER_ID", false);
 		smsReceive = prefs.getBoolean("SET_SMS_RECEIVE", false);
 		
 		/* get widget id */
@@ -226,23 +229,52 @@ public class TTSActivity extends Activity {
 			}
 		});
 
-		/* caller id event - on click */
-		((CheckBox) findViewById(R.id.phoneNumber))
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+		((TextView) findViewById(R.id.incomingCall)).setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
+				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
+				final View incomingCallView = layoutInflater.inflate(R.layout.incomingcall, null);
+				dlg.setView(incomingCallView);
+				
+				((CheckBox) incomingCallView.findViewById(R.id.callerIdEvent)).setChecked(callerId);
+				((CheckBox) incomingCallView.findViewById(R.id.callerIdEvent)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+					public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
+						callerId = isChecked;
+					}
+				});
+				((EditText) incomingCallView.findViewById(R.id.incomingMessage)).setText(incomingMessage);
+				dlg.setOnCancelListener(new OnCancelListener() {
+					public void onCancel(DialogInterface dialog) {
+						incomingMessage = ((EditText) incomingCallView.findViewById(R.id.incomingMessage)).getText().toString();
+					}
+				});
+				dlg.show();
+			}
+		});
+
+		((TextView) findViewById(R.id.incomingSMS)).setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
+				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
+				final View incomingSMSView = layoutInflater.inflate(R.layout.sms, null);
+				dlg.setView(incomingSMSView);
+				
+				((CheckBox) incomingSMSView.findViewById(R.id.smsReceive)).setChecked(smsReceive);
+				/* sms message event - on click */
+				((CheckBox) incomingSMSView.findViewById(R.id.smsReceive)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
-						phoneNumber = isChecked;
+						smsReceive = isChecked;
 					}
 				});
-
-		/* sms message event - on click */
-		((CheckBox) findViewById(R.id.smsReceive))
-		.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				smsReceive = isChecked;
+				((EditText) incomingSMSView.findViewById(R.id.smsMessage)).setText(smsMessage);
+				dlg.setOnCancelListener(new OnCancelListener() {
+					public void onCancel(DialogInterface dialog) {
+						smsMessage = ((EditText) incomingSMSView.findViewById(R.id.smsMessage)).getText().toString();
+					}
+				});
+				dlg.show();
 			}
 		});
 
@@ -269,7 +301,6 @@ public class TTSActivity extends Activity {
 						}
 					}
 				}
-				
 				final Intent newIntent = new Intent(TTSActivity.this, SelectLanguage.class);
 				newIntent.putExtras(new Bundle());
 				newIntent.putExtra("list_items",list.toArray(new String[list.size()]));
@@ -280,10 +311,6 @@ public class TTSActivity extends Activity {
 		/* set current values */
 
 		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en_US"));
-		((CheckBox) findViewById(R.id.phoneNumber)).setChecked(phoneNumber);
-		((EditText) findViewById(R.id.incomingMessage)).setText(prefs.getString("INCOMING_MESSAGE","Incoming Call!"));
-		((CheckBox) findViewById(R.id.smsReceive)).setChecked(smsReceive);
-		((EditText) findViewById(R.id.smsMessage)).setText(prefs.getString("SMS_MESSAGE","SMS Received from"));
 	}
 
 	private int setTimeInterval(View view,int progress)
@@ -349,10 +376,10 @@ public class TTSActivity extends Activity {
 		SharedPreferences.Editor prefset = prefs.edit();
 		prefset.putInt("SET_INTERVAL", interval);
 		prefset.putBoolean("SET_SCREEN_EVENT", screenEvent);
-		prefset.putBoolean("SET_PHONE_NUMBER", phoneNumber);
+		prefset.putBoolean("SET_CALLER_ID", callerId);
 		prefset.putBoolean("SET_SMS_RECEIVE", smsReceive);
-		prefset.putString("INCOMING_MESSAGE",((EditText) findViewById(R.id.incomingMessage)).getText().toString());		
-		prefset.putString("SMS_MESSAGE",((EditText) findViewById(R.id.smsMessage)).getText().toString());
+		prefset.putString("INCOMING_MESSAGE",incomingMessage);		
+		prefset.putString("SMS_MESSAGE",smsMessage);
 		prefset.putInt("FROM_PERIOD",(fromPeriod[0] << 8) | fromPeriod[1]);
 		prefset.putInt("TO_PERIOD",(toPeriod[0] << 8) | toPeriod[1]);
 		String lang =  ((EditText) findViewById(R.id.language)).getText().toString();
