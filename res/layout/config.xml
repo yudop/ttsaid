@@ -41,158 +41,43 @@
         </LinearLayout>
 
         <TextView
-            android:clickable="true"
             android:id="@+id/dateTimePlayback"
-            android:textColor="@color/textview"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:drawableRight="@drawable/arrow"
             android:layout_marginTop="10dp"
-            android:text="@string/dateTimePlayback"
+            android:clickable="true"
             android:drawablePadding="2dp"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:drawableRight="@drawable/arrow"
+            android:text="@string/dateTimePlayback"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/textview" />
 
         <TextView
-            android:clickable="true"
             android:id="@+id/incomingCall"
-            android:textColor="@color/textview"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:drawablePadding="2dp"
             android:drawableRight="@drawable/arrow"
             android:text="@string/incomingCall"
-            android:layout_marginTop="10dp"
-            android:drawablePadding="2dp"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/textview" />
 
         <TextView
-            android:clickable="true"
             android:id="@+id/incomingSMS"
-            android:textColor="@color/textview"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:drawablePadding="2dp"
             android:drawableRight="@drawable/arrow"
             android:text="@string/incomingSMS"
-            android:layout_marginTop="10dp"
-            android:drawablePadding="2dp"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <LinearLayout
-            android:id="@+id/linearLayout5"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="3dip"
-            android:layout_marginRight="3dip"
-            android:layout_marginTop="5dip"
-            android:background="@drawable/border"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:id="@+id/linearLayout6"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:id="@+id/TextView01"
-                    android:layout_width="230dip"
-                    android:layout_height="fill_parent"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginTop="5dip"
-                    android:text="@string/incomingCall"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <CheckBox
-                    android:id="@+id/phoneNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/linearLayout4"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp" >
-
-                <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="5dip"
-                    android:text="@string/incomingMessage"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <EditText
-                    android:id="@+id/incomingMessage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dip"
-                    android:layout_weight="0.46"
-                    android:text="Incoming Call!" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linearLayout10"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dip"
-            android:layout_marginLeft="3dip"
-            android:layout_marginRight="3dip"
-            android:layout_marginTop="5dip"
-            android:background="@drawable/border"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:id="@+id/linearLayout11"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:id="@+id/TextView02"
-                    android:layout_width="230dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginTop="5dip"
-                    android:text="@string/incomingSMS"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <CheckBox
-                    android:id="@+id/smsReceive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/linearLayout12"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp" >
-
-                <TextView
-                    android:id="@+id/textView13"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="5dip"
-                    android:text="@string/incomingMessage"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <EditText
-                    android:id="@+id/smsMessage"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dip"
-                    android:inputType="text"
-                    android:text="SMS Received from" />
-            </LinearLayout>
-        </LinearLayout>
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/textview" />
     </LinearLayout>
 
 </ScrollView>

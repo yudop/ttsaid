@@ -140,7 +140,7 @@ public class LocalService extends Service {
 					} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
 						showToast("incoming call");
 						if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
-							if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_PHONE_NUMBER", false)) {
+							if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
 								playPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
 								playSound("",playType.flush);
