@@ -28,15 +28,16 @@ import com.ttsaid.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -63,6 +64,7 @@ public class TTSActivity extends Activity {
 	private int [] toPeriod = new int[2];
 	private int [] fromPeriod = new int[2];
 	private int SELECT_LANGUAGE_ACTIVITY = 0x01021848;
+	private TimePickerDialog.OnTimeSetListener timeFromListener,timeToListener;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -86,9 +88,21 @@ public class TTSActivity extends Activity {
 	/* list activity creation */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Intent intent = getIntent();
 
-		// Set the result to CANCELED. This will cause the widget host to cancel
-		// out of the widget placement if they press the back button.
+		/* set current view */
+		setContentView(R.layout.config);
+		String versionName;
+		try {
+			versionName = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			versionName="1";
+		}
+		setTitle(String.format("%s v. %s",getString(R.string.app_name),versionName));
+		
+		/* Set the result to CANCELED. This will cause the widget host to cancel
+		   out of the widget placement if they press the back button. */
 		setResult(RESULT_CANCELED);
 
 		/* verify if TTS data is up to date */
@@ -96,25 +110,8 @@ public class TTSActivity extends Activity {
 		checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
 		startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
 		
-		//
-		// preferences database
-		//
+		/* preferences database */
 		prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
-
-		// set current view
-
-		String versionName;
-		
-		try {
-			versionName = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-		} catch(Exception e) {
-			versionName = "?";
-		}
-		setContentView(R.layout.config);
-		setTitle(String.format("%s v. %s",getString(R.string.app_name),versionName));
-
-		Intent intent = getIntent();
-		Bundle extras = intent.getExtras();
 
 		/* get parameters */
 
@@ -129,54 +126,67 @@ public class TTSActivity extends Activity {
 		phoneNumber = prefs.getBoolean("SET_PHONE_NUMBER", false);
 		smsReceive = prefs.getBoolean("SET_SMS_RECEIVE", false);
 		
-		// get widget id
-
+		/* get widget id */
+		Bundle extras = intent.getExtras();
 		if (extras != null) {
-			mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
-					AppWidgetManager.INVALID_APPWIDGET_ID);
+			mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,AppWidgetManager.INVALID_APPWIDGET_ID);
 		}
 
+		/* listener for 'from' time picker */
+		timeFromListener = new TimePickerDialog.OnTimeSetListener() {
+			public void onTimeSet(TimePicker view, int hour, int minute) {
+				if(new Integer(String.format("%d%02d",hour,minute)) > new Integer(String.format("%d%02d",toPeriod[0],toPeriod[1]))) {
+					Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
+				} else {
+					fromPeriod[0]=hour;
+					fromPeriod[1]=minute;
+					setPeriod(fromPeriod,toPeriod);
+				}
+			}
+		};
+		
+		/* listener for 'to' time picker */
+		timeToListener = new TimePickerDialog.OnTimeSetListener() {
+			public void onTimeSet(TimePicker view, int hour, int minute) {
+				if(new Integer(String.format("%d%02d",fromPeriod[0],fromPeriod[1])) > new Integer(String.format("%d%02d",hour,minute))) {
+					Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
+				} else {
+					toPeriod[0]=hour;
+					toPeriod[1]=minute;
+					setPeriod(fromPeriod,toPeriod);
+				}
+			}
+		};
+		
+		/* from time - on click */
+		((EditText) findViewById(R.id.fromTime)).setFocusable(false);
+		((EditText) findViewById(R.id.fromTime)).setOnClickListener(new OnClickListener() {
+			public void onClick(View view) {
 
-		((Button) findViewById(R.id.selectPeriod)).setOnClickListener(new OnClickListener() {
-			
-			public void onClick(View arg0) {
-				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
-				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
-				final View view = layoutInflater.inflate(R.layout.period, null);
-				dlg.setView(view);
-				
-				((TimePicker) view.findViewById(R.id.fromPeriod)).setIs24HourView(true);
-				((TimePicker) view.findViewById(R.id.fromPeriod)).setCurrentHour(fromPeriod[0]);
-				((TimePicker) view.findViewById(R.id.fromPeriod)).setCurrentMinute(fromPeriod[1]);
-				((TimePicker) view.findViewById(R.id.toPeriod)).setIs24HourView(true);
-				((TimePicker) view.findViewById(R.id.toPeriod)).setCurrentHour(toPeriod[0]);
-				((TimePicker) view.findViewById(R.id.toPeriod)).setCurrentMinute(toPeriod[1]);
+				TTSActivity.this.setTitle("from");
 
-				dlg.setOnCancelListener(new OnCancelListener() {
-					public void onCancel(DialogInterface dialog) {
-						int hf,mf,ht,mt;
-						
-						hf=((TimePicker) view.findViewById(R.id.fromPeriod)).getCurrentHour();
-						mf=((TimePicker) view.findViewById(R.id.fromPeriod)).getCurrentMinute();
-						ht=((TimePicker) view.findViewById(R.id.toPeriod)).getCurrentHour();
-						mt=((TimePicker) view.findViewById(R.id.toPeriod)).getCurrentMinute();
-						if(new Integer(String.format("%d%d",hf,mf)) > new Integer(String.format("%d%d",ht,mt))) {
-							Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
-						} else {
-							fromPeriod[0]=hf;
-							fromPeriod[1]=mf;
-							toPeriod[0]=ht;
-							toPeriod[1]=mt;
-							setPeriod(fromPeriod,toPeriod);
-						}
-					}
-				});
-				dlg.show();
+				final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,fromPeriod[0],fromPeriod[1],true);
+				tm.setTitle("Select time");
+				tm.show();
 			}
 		});
+
+		/* to time - on click */
+		((EditText) findViewById(R.id.toTime)).setFocusable(false);
+		((EditText) findViewById(R.id.toTime)).setOnClickListener(new OnClickListener() {
+			public void onClick(View view) {
+				
+				TTSActivity.this.setTitle("to");
+				
+				final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener,toPeriod[0],toPeriod[1],true);
+				tm.setTitle("Select time");
+				tm.show();
+			}
+		});		
 		
-		((Button) findViewById(R.id.selectInterval)).setOnClickListener(new OnClickListener() {
-			
+		/* time interval - on click */
+		((EditText) findViewById(R.id.intervalValue)).setFocusable(false);
+		((EditText) findViewById(R.id.intervalValue)).setOnClickListener(new OnClickListener() {			
 			public void onClick(View arg0) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
 				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
@@ -209,6 +219,7 @@ public class TTSActivity extends Activity {
 			}
 		});
 
+		/* screen event - on click */
 		((CheckBox) findViewById(R.id.screenEvent))
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -218,6 +229,7 @@ public class TTSActivity extends Activity {
 					}
 				});
 
+		/* caller id event - on click */
 		((CheckBox) findViewById(R.id.phoneNumber))
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -227,6 +239,7 @@ public class TTSActivity extends Activity {
 					}
 				});
 
+		/* sms message event - on click */
 		((CheckBox) findViewById(R.id.smsReceive))
 		.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -235,8 +248,10 @@ public class TTSActivity extends Activity {
 				smsReceive = isChecked;
 			}
 		});
-		
-		((Button) findViewById(R.id.searchLanguage)).setOnClickListener(new OnClickListener() {
+
+		/* select language - on click */
+		((EditText) findViewById(R.id.language)).setFocusable(false);
+		((EditText) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Locale [] loclist = Locale.getAvailableLocales();
 				ArrayList<String> list = new ArrayList<String>();
@@ -293,7 +308,7 @@ public class TTSActivity extends Activity {
 			return(0);
 		}
 		if (progress > 3) {
-			hour = new Integer(interval / 4).toString();
+			hour = new Integer(progress / 4).toString();
 		}
 		m = new Integer(progress % 4 * LocalService.ALARM_MIN_INTERVAL);
 		if (hour.length() > 0) {
