@@ -31,6 +31,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <EditText
+                android:focusable="false"
                 android:id="@+id/language"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
