@@ -129,7 +129,7 @@ public class TTSActivity extends Activity {
 		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", false);
 		callerId = prefs.getBoolean("SET_CALLER_ID", false);
 		smsReceive = prefs.getBoolean("SET_SMS_RECEIVE", false);
-		
+
 		/* get widget id */
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -307,7 +307,7 @@ public class TTSActivity extends Activity {
 				startActivityForResult(newIntent,SELECT_LANGUAGE_ACTIVITY);
 			}
 		});
-		
+
 		/* set current values */
 
 		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en_US"));
