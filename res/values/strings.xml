@@ -12,7 +12,7 @@
     <string name="french">Française</string>
     <string name="timeFormat">[h]:[m][p], [M] [d]</string>
     <string name="timeMessage">Message</string>
-    <string name="IncomingSMS">Incoming SMS</string>
+    <string name="incomingSMS">Incoming SMS</string>
     <string name="selectedLanguage">Selected Language</string>
     <string name="timeSpeech">Time Speech</string>
     <string name="language">Language</string>
@@ -20,4 +20,6 @@
     <string name="to">To</string>
     <string name="eightAm">8:00</string>
     <string name="fivePm">17:00</string>
+    <string name="playbackTime">Playback Hours</string>
+    <string name="dateTimePlayback">Date &amp; Time Playback</string>
 </resources>
