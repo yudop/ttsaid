@@ -21,6 +21,7 @@
 package com.ttsaid;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 
 import com.ttsaid.R;
@@ -41,9 +42,13 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -65,7 +70,6 @@ public class TTSActivity extends Activity {
 	private String incomingMessage,smsMessage;
 	private int [] toPeriod = new int[2];
 	private int [] fromPeriod = new int[2];
-	private int SELECT_LANGUAGE_ACTIVITY = 0x01021848;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -81,8 +85,6 @@ public class TTSActivity extends Activity {
 					}
 				});
 			}
-		} else if(requestCode == SELECT_LANGUAGE_ACTIVITY && resultCode == RESULT_OK) {
-			((EditText) findViewById(R.id.language)).setText(data.getStringExtra("selected"));
 		}
 	}
 
@@ -278,9 +280,56 @@ public class TTSActivity extends Activity {
 			}
 		});
 
+		((TextView) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
+				//final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
+				//final View langView = layoutInflater.inflate(R.layout.language, null);
+				//dlg.setView(langView);
+				Locale [] loclist = Locale.getAvailableLocales();
+				final ArrayList<String> list = new ArrayList<String>();
+				
+				for(int x=0;x < loclist.length;x++) {
+					int avail = mTTS.isLanguageAvailable(loclist[x]);
+					if(mTTS != null && (avail == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && avail == TextToSpeech.LANG_AVAILABLE))) {
+						String str;
+						
+						if(loclist[x].getCountry().length() > 0) {
+							str = String.format("%s %s (%s_%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage(),loclist[x].getCountry());
+						} else {
+							str = String.format("%s %s (%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage());
+						}
+						int y;
+		
+						for(y=0;y < list.size();y++) {
+							if(((String) list.get(y)).equals(str)) {
+								break;
+							}
+						}
+						if(y >= list.size()) {
+							list.add(str);
+						}
+					}
+				}
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,R.layout.rowlayout,list);
+				adapter.sort(new Comparator<String>() {
+					public int compare(String a, String b) {
+						return(a.compareTo(b));
+					}
+				});
+				dlg.setAdapter(adapter,new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						String str = adapter.getItem(which);
+						((EditText) findViewById(R.id.language)).setText(str.substring(str.indexOf("(")+1,str.indexOf(")")));
+					}
+				});
+				dlg.show();
+			}
+		});
+		
 		/* select language - on click */
-		((EditText) findViewById(R.id.language)).setFocusable(false);
-		((EditText) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
+/*		((EditText) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Locale [] loclist = Locale.getAvailableLocales();
 				ArrayList<String> list = new ArrayList<String>();
@@ -307,7 +356,7 @@ public class TTSActivity extends Activity {
 				startActivityForResult(newIntent,SELECT_LANGUAGE_ACTIVITY);
 			}
 		});
-
+*/
 		/* set current values */
 
 		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en_US"));
