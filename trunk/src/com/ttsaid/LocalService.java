@@ -67,8 +67,8 @@ public class LocalService extends Service {
 	public static final String	PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
 	public static final String	PREFS_DB = "com.ttsaid.prefs.db";
 	public static final int		ALARM_MIN_INTERVAL = 15;
-	public static final int		FROM_PERIOD = ((8 << 8) | 0); // default 'from' period 8:00am
-	public static final int		TO_PERIOD = ((19 << 8) | 0); // default 'to' period 7:00pm
+	public static final int		FROM_PERIOD = 800; // default 'from' period 8:00am
+	public static final int		TO_PERIOD = 1900; // default 'to' period 7:00pm
 
 	private final String SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private enum playType {flush,skip,add};
@@ -278,8 +278,8 @@ public class LocalService extends Service {
 			
 			t.setToNow();
 			tn = new Integer(t.format("%H%M"));
-			fromPeriod = new Integer(String.format("%02d%02d",prefs.getInt("FROM_PERIOD",FROM_PERIOD) >> 8,prefs.getInt("FROM_PERIOD",FROM_PERIOD) & 0xff));
-			toPeriod   = new Integer(String.format("%02d%02d",prefs.getInt("TO_PERIOD",TO_PERIOD) >> 8,prefs.getInt("TO_PERIOD",TO_PERIOD) & 0xff));
+			fromPeriod = prefs.getInt("FROM_PERIOD",FROM_PERIOD);
+			toPeriod   = prefs.getInt("TO_PERIOD",TO_PERIOD);
 			
 			showToast("from: " + fromPeriod + " to: " + toPeriod + " now: " + tn);
 			
