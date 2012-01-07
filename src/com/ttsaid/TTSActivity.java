@@ -63,8 +63,8 @@ public class TTSActivity extends Activity {
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
 	private String incomingMessage,smsMessage;
-	private int [] toPeriod = new int[2];
-	private int [] fromPeriod = new int[2];
+	private int toPeriod;
+	private int fromPeriod;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -117,12 +117,8 @@ public class TTSActivity extends Activity {
 		smsMessage = prefs.getString("SMS_MESSAGE","SMS Received from");
 
 		interval = prefs.getInt("SET_INTERVAL", interval);
-		int x = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
-		fromPeriod[0] = x >> 8;
-		fromPeriod[1] = x & 0xff;
-		x = prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD);
-		toPeriod[0] = x >> 8;
-		toPeriod[1] = x & 0xff;
+		fromPeriod = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
+		toPeriod = prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD);
 		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", false);
 		callerId = prefs.getBoolean("SET_CALLER_ID", false);
 		smsReceive = prefs.getBoolean("SET_SMS_RECEIVE", false);
@@ -145,8 +141,9 @@ public class TTSActivity extends Activity {
 				((CheckBox) dateTimeView.findViewById(R.id.screenEvent)).setChecked(screenEvent);
 
 				/* set current date & time */
-				((TextView) dateTimeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",fromPeriod[0],fromPeriod[1]));
-				((TextView) dateTimeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",toPeriod[0],toPeriod[1]));
+
+				((TextView) dateTimeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",fromPeriod/100,fromPeriod%100));
+				((TextView) dateTimeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",toPeriod/100,toPeriod%100));
 
 				/* set interval event */
 				((SeekBar) dateTimeView.findViewById(R.id.interval)).setMax(8);
@@ -183,16 +180,15 @@ public class TTSActivity extends Activity {
 						/* listener for 'from' time picker */
 						TimePickerDialog.OnTimeSetListener timeFromListener = new TimePickerDialog.OnTimeSetListener() {
 							public void onTimeSet(TimePicker view, int hour, int minute) {
-								if(new Integer(String.format("%d%02d",hour,minute)) > new Integer(String.format("%d%02d",toPeriod[0],toPeriod[1]))) {
+								if(hour*100+minute > toPeriod) {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
-									fromPeriod[0]=hour;
-									fromPeriod[1]=minute;
-									((TextView) dateTimeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",fromPeriod[0],fromPeriod[1]));
+									fromPeriod=hour*100+minute;
+									((TextView) dateTimeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",hour,minute));
 								}
 							}
 						};
-						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,fromPeriod[0],fromPeriod[1],true);
+						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,fromPeriod/100,fromPeriod%100,true);
 						tm.setTitle("Select time");
 						tm.show();
 					}
@@ -205,16 +201,15 @@ public class TTSActivity extends Activity {
 						/* listener for 'to' time picker */
 						TimePickerDialog.OnTimeSetListener timeToListener = new TimePickerDialog.OnTimeSetListener() {
 							public void onTimeSet(TimePicker view, int hour, int minute) {
-								if(new Integer(String.format("%d%02d",fromPeriod[0],fromPeriod[1])) > new Integer(String.format("%d%02d",hour,minute))) {
+								if(fromPeriod > hour*100+minute) {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
-									toPeriod[0]=hour;
-									toPeriod[1]=minute;
-									((TextView) dateTimeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",toPeriod[0],toPeriod[1]));
+									toPeriod=hour*100+minute;
+									((TextView) dateTimeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",hour,minute));
 								}
 							}
 						};
-						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener,toPeriod[0],toPeriod[1],true);
+						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener,toPeriod/100,toPeriod%100,true);
 						tm.setTitle("Select time");
 						tm.show();
 					}
@@ -392,8 +387,8 @@ public class TTSActivity extends Activity {
 		prefset.putBoolean("SET_SMS_RECEIVE", smsReceive);
 		prefset.putString("INCOMING_MESSAGE",incomingMessage);		
 		prefset.putString("SMS_MESSAGE",smsMessage);
-		prefset.putInt("FROM_PERIOD",(fromPeriod[0] << 8) | fromPeriod[1]);
-		prefset.putInt("TO_PERIOD",(toPeriod[0] << 8) | toPeriod[1]);
+		prefset.putInt("FROM_PERIOD",fromPeriod);
+		prefset.putInt("TO_PERIOD",toPeriod);
 		String lang =  ((EditText) findViewById(R.id.language)).getText().toString();
 		if(lang.length() == 0) lang = "en";
 		prefset.putString("SET_LANGUAGE",lang);
