@@ -365,6 +365,7 @@ public class TTSActivity extends Activity {
 				dlg.setSingleChoiceItems(adapter,currentStream,new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						currentStream = which;
+						dialog.dismiss();
 					}
 				});
 				dlg.show();
