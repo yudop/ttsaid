@@ -10,7 +10,7 @@
     <string name="timeSpeechInterval">Interval</string>
     <string name="incomingMessage">Message</string>
     <string name="french">Française</string>
-    <string name="timeFormat">[h]:[m][p], [M] [d]</string>
+    <string name="timeFormat">Time Format</string>
     <string name="timeMessage">Message</string>
     <string name="incomingSMS">Incoming SMS</string>
     <string name="selectedLanguage">Selected Language</string>
@@ -27,4 +27,6 @@
     <string name="repeatMessage">Repeat</string>
     <string name="one">1</string>
     <string name="streaming">Streaming</string>
+    <string name="tf12">12hs</string>
+    <string name="tf24">24hs</string>
 </resources>

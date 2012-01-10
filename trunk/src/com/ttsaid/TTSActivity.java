@@ -44,6 +44,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -63,7 +66,7 @@ public class TTSActivity extends Activity {
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
 	private String incomingMessage,smsMessage;
-	private int toPeriod,fromPeriod,repeatCallerId,repeatSMS,currentStream;
+	private int toPeriod,fromPeriod,repeatCallerId,repeatSMS,currentStream,timeFormat;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -116,6 +119,7 @@ public class TTSActivity extends Activity {
 		smsMessage = prefs.getString("SMS_MESSAGE","SMS Received from");
 		repeatCallerId = prefs.getInt("REPEAT_CALLER_ID",2);
 		repeatSMS = prefs.getInt("REPEAT_SMS",1);
+		timeFormat = prefs.getInt("TIME_FORMAT",12);
 		currentStream = prefs.getInt("STREAM",0);
 		interval = prefs.getInt("SET_INTERVAL", interval);
 		fromPeriod = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
@@ -184,21 +188,21 @@ public class TTSActivity extends Activity {
 			public void onClick(View arg0) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
 				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
-				final View dateTimeView = layoutInflater.inflate(R.layout.interval, null);
-				dlg.setView(dateTimeView);
+				final View timeView = layoutInflater.inflate(R.layout.interval, null);
+				dlg.setView(timeView);
 
 				/* set current screen event mode */
-				((CheckBox) dateTimeView.findViewById(R.id.screenEvent)).setChecked(screenEvent);
+				((CheckBox) timeView.findViewById(R.id.screenEvent)).setChecked(screenEvent);
 
 				/* set current date & time */
 
-				((TextView) dateTimeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",fromPeriod/100,fromPeriod%100));
-				((TextView) dateTimeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",toPeriod/100,toPeriod%100));
+				((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",fromPeriod/100,fromPeriod%100));
+				((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",toPeriod/100,toPeriod%100));
 
 				/* set interval event */
-				((SeekBar) dateTimeView.findViewById(R.id.interval)).setMax(8);
-				((SeekBar) dateTimeView.findViewById(R.id.interval)).setKeyProgressIncrement(1);
-				((SeekBar) dateTimeView.findViewById(R.id.interval)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+				((SeekBar) timeView.findViewById(R.id.interval)).setMax(8);
+				((SeekBar) timeView.findViewById(R.id.interval)).setKeyProgressIncrement(1);
+				((SeekBar) timeView.findViewById(R.id.interval)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 							public void onStopTrackingTouch(SeekBar seekBar) {
 							}
@@ -208,12 +212,12 @@ public class TTSActivity extends Activity {
 
 							public void onProgressChanged(SeekBar seekBar,
 									int progress, boolean fromUser) {
-								interval = setTimeInterval(dateTimeView.findViewById(R.id.intervalValue),progress);
+								interval = setTimeInterval(timeView.findViewById(R.id.intervalValue),progress);
 							}
 						});
 				
 				/* screen event - on click */
-				((CheckBox) dateTimeView.findViewById(R.id.screenEvent))
+				((CheckBox) timeView.findViewById(R.id.screenEvent))
 						.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 							public void onCheckedChanged(CompoundButton buttonView,
@@ -223,8 +227,8 @@ public class TTSActivity extends Activity {
 						});
 				
 				/* from time - on click */
-				((EditText) dateTimeView.findViewById(R.id.fromTime)).setFocusable(false);
-				((EditText) dateTimeView.findViewById(R.id.fromTime)).setOnClickListener(new OnClickListener() {
+				((EditText) timeView.findViewById(R.id.fromTime)).setFocusable(false);
+				((EditText) timeView.findViewById(R.id.fromTime)).setOnClickListener(new OnClickListener() {
 					public void onClick(View view) {
 
 						/* listener for 'from' time picker */
@@ -234,7 +238,7 @@ public class TTSActivity extends Activity {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
 									fromPeriod=hour*100+minute;
-									((TextView) dateTimeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",hour,minute));
+									((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",hour,minute));
 								}
 							}
 						};
@@ -245,8 +249,8 @@ public class TTSActivity extends Activity {
 				});
 
 				/* to time - on click */
-				((EditText) dateTimeView.findViewById(R.id.toTime)).setFocusable(false);
-				((EditText) dateTimeView.findViewById(R.id.toTime)).setOnClickListener(new OnClickListener() {
+				((EditText) timeView.findViewById(R.id.toTime)).setFocusable(false);
+				((EditText) timeView.findViewById(R.id.toTime)).setOnClickListener(new OnClickListener() {
 					public void onClick(View view) {
 						/* listener for 'to' time picker */
 						TimePickerDialog.OnTimeSetListener timeToListener = new TimePickerDialog.OnTimeSetListener() {
@@ -255,7 +259,7 @@ public class TTSActivity extends Activity {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
 									toPeriod=hour*100+minute;
-									((TextView) dateTimeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",hour,minute));
+									((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",hour,minute));
 								}
 							}
 						};
@@ -264,9 +268,15 @@ public class TTSActivity extends Activity {
 						tm.show();
 					}
 				});	
-				
+				/* time format */
+				((RadioGroup) timeView.findViewById(R.id.timeFormat)).setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+					public void onCheckedChanged(RadioGroup group, int checkedId) {
+						timeFormat = (checkedId == R.id.tf12) ? 12 : 24;
+					}
+				});
+				((RadioGroup) timeView.findViewById(R.id.timeFormat)).check((timeFormat == 12) ? R.id.tf12 : R.id.tf24);
 				/* set current interval */
-				((SeekBar) dateTimeView.findViewById(R.id.interval)).setProgress(interval);
+				((SeekBar) timeView.findViewById(R.id.interval)).setProgress(interval);
 				dlg.show();
 			}
 		});
@@ -453,6 +463,7 @@ public class TTSActivity extends Activity {
 		prefset.putString("SMS_MESSAGE",smsMessage);
 		prefset.putInt("FROM_PERIOD",fromPeriod);
 		prefset.putInt("TO_PERIOD",toPeriod);
+		prefset.putInt("TIME_FORMAT",timeFormat);
 		String lang =  ((EditText) findViewById(R.id.language)).getText().toString();
 		if(lang.length() == 0) lang = "en";
 		prefset.putString("SET_LANGUAGE",lang);

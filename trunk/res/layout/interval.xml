@@ -116,5 +116,43 @@
             android:inputType="none"
             android:text="@string/fivePm" />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/LinearLayout01"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp" >
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="120dp"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:text="@string/timeFormat"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioGroup
+            android:id="@+id/timeFormat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/tf12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/tf12" />
+
+            <RadioButton
+                android:id="@+id/tf24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@string/tf24" />
+            
+           </RadioGroup>
+
+    </LinearLayout>
 
 </LinearLayout>
