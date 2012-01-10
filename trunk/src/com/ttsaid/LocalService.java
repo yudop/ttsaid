@@ -167,17 +167,17 @@ public class LocalService extends Service {
 						showToast("incoming call");
 						if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
 							if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
-								playCallerId(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 								duringRing = true;
+								playCallerId(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
 								playSound("",playType.flush);
 								duringCall = true;
 								duringRing = false;
 								showToast("during call");
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+								playSound("",playType.flush);
 								duringCall = false;
 								duringRing = false;
-								playSound("",playType.flush);
 								showToast("call disconnected");
 							}
 						}
