@@ -461,6 +461,7 @@ public class TTSActivity extends Activity {
 		/* start service */
 
 		intent = new Intent(TTSActivity.this, LocalService.class);
+		intent.putExtra("RESET_PARAM",true);
 		startService(intent);
 
 		finish();
