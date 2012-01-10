@@ -139,6 +139,12 @@ public class LocalService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
 		/* create handle when message is starting */
+		if(!started || intent.getBooleanExtra("RESET_PARAM", false)) {
+			mTTS = new TextToSpeech(this, new OnInitListener() {
+				public void onInit(int status) {
+				}
+			});
+		}
 		if (!started) {
 			/* get preferences database instance */
 			prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
@@ -151,10 +157,6 @@ public class LocalService extends Service {
 			setStream(currentStream);
 			alarmIntent = null;
 			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			mTTS = new TextToSpeech(this, new OnInitListener() {
-				public void onInit(int status) {
-				}
-			});
 			receiver = new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
