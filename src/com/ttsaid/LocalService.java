@@ -335,7 +335,9 @@ public class LocalService extends Service {
 		formatter.format(loc,"%te. ",date);
 		formatter.format(loc,"%tr ",date);
 		
-		playSound(sb.toString(), playType.skip);
+		if(!duringCall) {
+			playSound(sb.toString(), playType.skip);
+		}
 	}
 
 	public void playSilence(int duration)
