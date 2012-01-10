@@ -39,13 +39,12 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
@@ -71,17 +70,20 @@ public class TTSActivity extends Activity {
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == MY_DATA_CHECK_CODE) {
+			
+			Log.d("MY_DATA_CHECK_CODE","MY_DATA_CHECK_CODE == " + resultCode);
+			
 			if (resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
 				// missing data, install it
 				Intent installIntent = new Intent();
 				installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+				installIntent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 				startActivity(installIntent);
-			} else {
-				mTTS = new TextToSpeech(TTSActivity.this,new OnInitListener() {
-					public void onInit(int status) {
-					}
-				});
 			}
+			mTTS = new TextToSpeech(TTSActivity.this,new OnInitListener() {
+				public void onInit(int status) {
+				}
+			});
 		}
 	}
 
@@ -108,6 +110,7 @@ public class TTSActivity extends Activity {
 		/* verify if TTS data is up to date */
 		Intent checkIntent = new Intent();
 		checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+		checkIntent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 		startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
 		
 		/* preferences database */

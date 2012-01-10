@@ -29,15 +29,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-				<activity
-			android:name=".TTSActivity"
-			android:label="@string/app_name" >
-			<intent_filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent_filter>
-		</activity>
-		<activity android:name=".TTSActivity" >
+		<activity android:name=".TTSActivity" android:launchMode="standard">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
 			</intent-filter>
