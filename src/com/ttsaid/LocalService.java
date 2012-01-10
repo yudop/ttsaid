@@ -338,8 +338,11 @@ public class LocalService extends Service {
 		formatter.format(loc,"%tA, ",date);
 		formatter.format(loc,"%tB ",date);
 		formatter.format(loc,"%te. ",date);
-		formatter.format(loc,"%tr ",date);
-		
+		if(prefs.getInt("TIME_FORMAT",12) == 12) {
+			formatter.format(loc,"%tr ",date);
+		} else {
+			formatter.format(loc,"%tT ",date);
+		}
 		if(!duringRing) {
 			playSound(sb.toString(), playType.skip);
 		}
