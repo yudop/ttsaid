@@ -26,4 +26,5 @@
     <string name="speakSmsMessage">Speak SMS Message</string>
     <string name="repeatMessage">Repeat</string>
     <string name="one">1</string>
+    <string name="streaming">Streaming</string>
 </resources>

@@ -79,6 +79,20 @@
             android:text="@string/incomingSMS"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/textview" />
+        
+        <TextView
+            android:id="@+id/streaming"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:drawablePadding="2dp"
+            android:drawableRight="@drawable/arrow"
+            android:text="@string/streaming"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/textview" />
+        
     </LinearLayout>
 
 </ScrollView>

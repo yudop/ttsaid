@@ -87,8 +87,9 @@ public class LocalService extends Service {
 	private BroadcastReceiver		receiver;
 	private PendingIntent			alarmIntent;
 	private boolean					duringCall = false;
-	private HashMap<String,String>	myHash = new HashMap<String, String>();
+	private HashMap<String,String>	myHash;
 	private boolean					ringMute = false;
+	private int						currentStream = -1;
 
 	/**
 	 * Class for clients to access. Because we know this service always runs in
@@ -110,6 +111,30 @@ public class LocalService extends Service {
 		// showNotification();
 	}
 
+	/* set current stream */
+	public void setStream(int stream)
+	{
+		myHash = new HashMap<String, String>();
+		switch(stream) {
+		case 1:
+		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_ALARM));
+		    break;
+		case 2:
+		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_NOTIFICATION));
+		    break;
+		case 3:
+		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_RING));
+		    break;
+		case 4:
+		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_SYSTEM));
+		    break;
+		case 0:
+		default:
+		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
+		    break;
+		}
+	}
+	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -121,8 +146,9 @@ public class LocalService extends Service {
 			AudioManager mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 			if(mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
 				ringMute=true;
-			}			
-		    myHash.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
+			}
+			currentStream = prefs.getInt("STREAM",0); 
+			setStream(currentStream);
 			alarmIntent = null;
 			alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 			mTTS = new TextToSpeech(this, new OnInitListener() {
@@ -185,6 +211,11 @@ public class LocalService extends Service {
 			registerReceiver(receiver,
 					new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
 			started = true;
+		}
+		/* adjust current stream */
+		if(currentStream != prefs.getInt("STREAM",0)) {
+			currentStream = prefs.getInt("STREAM",0);
+			setStream(currentStream);
 		}
 		/* adjust interval in quarters of hour */
 		int x = prefs.getInt("SET_INTERVAL", interval);
