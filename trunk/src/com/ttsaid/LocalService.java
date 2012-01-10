@@ -86,7 +86,7 @@ public class LocalService extends Service {
 	private SharedPreferences		prefs;
 	private BroadcastReceiver		receiver;
 	private PendingIntent			alarmIntent;
-	private boolean					duringCall = false;
+	private boolean					duringCall = false, duringRing = false;
 	private HashMap<String,String>	myHash;
 	private boolean					ringMute = false;
 	private int						currentStream = -1;
@@ -168,12 +168,15 @@ public class LocalService extends Service {
 						if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
 							if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
 								playCallerId(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
+								duringRing = true;
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
 								playSound("",playType.flush);
 								duringCall = true;
+								duringRing = false;
 								showToast("during call");
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_IDLE)) {
 								duringCall = false;
+								duringRing = false;
 								playSound("",playType.flush);
 								showToast("call disconnected");
 							}
@@ -335,7 +338,7 @@ public class LocalService extends Service {
 		formatter.format(loc,"%te. ",date);
 		formatter.format(loc,"%tr ",date);
 		
-		if(!duringCall) {
+		if(!duringRing) {
 			playSound(sb.toString(), playType.skip);
 		}
 	}
