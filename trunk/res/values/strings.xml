@@ -24,4 +24,6 @@
     <string name="dateTimePlayback">Date &amp; Time Playback</string>
     <string name="speakCallerId">Speak Caller Id</string>
     <string name="speakSmsMessage">Speak SMS Message</string>
+    <string name="repeatMessage">Repeat</string>
+    <string name="one">1</string>
 </resources>
