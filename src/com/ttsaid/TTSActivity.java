@@ -63,8 +63,7 @@ public class TTSActivity extends Activity {
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
 	private String incomingMessage,smsMessage;
-	private int toPeriod;
-	private int fromPeriod;
+	private int toPeriod,fromPeriod,repeatCallerId,repeatSMS;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -115,7 +114,8 @@ public class TTSActivity extends Activity {
 
 		incomingMessage = prefs.getString("INCOMING_MESSAGE","Incoming Call!");
 		smsMessage = prefs.getString("SMS_MESSAGE","SMS Received from");
-
+		repeatCallerId = prefs.getInt("REPEAT_CALLER_ID",2);
+		repeatSMS = prefs.getInt("REPEAT_SMS",1);
 		interval = prefs.getInt("SET_INTERVAL", interval);
 		fromPeriod = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
 		toPeriod = prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD);
@@ -225,21 +225,41 @@ public class TTSActivity extends Activity {
 			public void onClick(View v) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
 				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
-				final View incomingCallView = layoutInflater.inflate(R.layout.incomingcall, null);
-				dlg.setView(incomingCallView);
+				final View callView = layoutInflater.inflate(R.layout.incomingcall, null);
+				dlg.setView(callView);
 				
-				((CheckBox) incomingCallView.findViewById(R.id.callerIdEvent)).setChecked(callerId);
-				((CheckBox) incomingCallView.findViewById(R.id.callerIdEvent)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				((CheckBox) callView.findViewById(R.id.callerIdEvent)).setChecked(callerId);
+				((CheckBox) callView.findViewById(R.id.callerIdEvent)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 					public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
 						callerId = isChecked;
 					}
 				});
-				((EditText) incomingCallView.findViewById(R.id.incomingMessage)).setText(incomingMessage);
-				dlg.setOnCancelListener(new OnCancelListener() {
-					public void onCancel(DialogInterface dialog) {
-						incomingMessage = ((EditText) incomingCallView.findViewById(R.id.incomingMessage)).getText().toString();
+				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setMax(3);
+				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setKeyProgressIncrement(1);
+				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					
+					public void onStopTrackingTouch(SeekBar seekBar) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					public void onStartTrackingTouch(SeekBar seekBar) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+						repeatCallerId = progress + 1;
+						((TextView) callView.findViewById(R.id.repeatCallerId)).setText(""+repeatCallerId);
 					}
 				});
+				dlg.setOnCancelListener(new OnCancelListener() {
+					public void onCancel(DialogInterface dialog) {
+						incomingMessage = ((EditText) callView.findViewById(R.id.incomingMessage)).getText().toString();
+					}
+				});
+				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setProgress(repeatCallerId-1);
+				((EditText) callView.findViewById(R.id.incomingMessage)).setText(incomingMessage);
 				dlg.show();
 			}
 		});
@@ -248,24 +268,44 @@ public class TTSActivity extends Activity {
 			public void onClick(View v) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
 				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
-				final View incomingSMSView = layoutInflater.inflate(R.layout.sms, null);
-				dlg.setView(incomingSMSView);
+				final View smsView = layoutInflater.inflate(R.layout.sms, null);
+				dlg.setView(smsView);
 				
-				((CheckBox) incomingSMSView.findViewById(R.id.smsReceive)).setChecked(smsReceive);
+				((CheckBox) smsView.findViewById(R.id.smsReceive)).setChecked(smsReceive);
 				/* sms message event - on click */
-				((CheckBox) incomingSMSView.findViewById(R.id.smsReceive)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				((CheckBox) smsView.findViewById(R.id.smsReceive)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						smsReceive = isChecked;
 					}
 				});
-				((EditText) incomingSMSView.findViewById(R.id.smsMessage)).setText(smsMessage);
-				dlg.setOnCancelListener(new OnCancelListener() {
-					public void onCancel(DialogInterface dialog) {
-						smsMessage = ((EditText) incomingSMSView.findViewById(R.id.smsMessage)).getText().toString();
+				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setMax(3);
+				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setKeyProgressIncrement(1);
+				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					
+					public void onStopTrackingTouch(SeekBar seekBar) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					public void onStartTrackingTouch(SeekBar seekBar) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+						repeatSMS = progress + 1;
+						((TextView) smsView.findViewById(R.id.repeatSMS)).setText(""+repeatSMS);
 					}
 				});
+				dlg.setOnCancelListener(new OnCancelListener() {
+					public void onCancel(DialogInterface dialog) {
+						smsMessage = ((EditText) smsView.findViewById(R.id.smsMessage)).getText().toString();
+					}
+				});
+				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setProgress(repeatSMS-1);
+				((EditText) smsView.findViewById(R.id.smsMessage)).setText(smsMessage);
 				dlg.show();
 			}
 		});
@@ -317,7 +357,7 @@ public class TTSActivity extends Activity {
 		
 		/* set current values */
 
-		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en_US"));
+		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en"));
 	}
 
 	private int setTimeInterval(View view,int progress)
@@ -381,6 +421,8 @@ public class TTSActivity extends Activity {
 		/* save preferences */
 
 		SharedPreferences.Editor prefset = prefs.edit();
+		prefset.putInt("REPEAT_CALLER_ID", repeatCallerId);
+		prefset.putInt("REPEAT_SMS", repeatSMS);
 		prefset.putInt("SET_INTERVAL", interval);
 		prefset.putBoolean("SET_SCREEN_EVENT", screenEvent);
 		prefset.putBoolean("SET_CALLER_ID", callerId);

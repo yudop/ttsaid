@@ -141,13 +141,14 @@ public class LocalService extends Service {
 						showToast("incoming call");
 						if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
 							if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
-								playPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
+								playCallerId(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
 								playSound("",playType.flush);
 								duringCall = true;
 								showToast("during call");
 							} else if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_IDLE)) {
 								duringCall = false;
+								playSound("",playType.flush);
 								showToast("call disconnected");
 							}
 						}
@@ -247,10 +248,13 @@ public class LocalService extends Service {
 		}
 		str = String.format("%s %s. %s",prefs.getString("SMS_MESSAGE","SMS Received!"),number,str);  
 		playSound(str, playType.flush);
-		playSound(str,  playType.add);
+		for(int x=1;x < prefs.getInt("REPEAT_SMS",2);x++) {
+			playSilence(400);
+			playSound(str,  playType.add);
+		}
 	}
 	
-	public void playPhoneNumber(String str) {
+	public void playCallerId(String str) {
 		Cursor cursor;
 
 		Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,
@@ -265,7 +269,10 @@ public class LocalService extends Service {
 		/* append incoming call message */
 		str = String.format("%s %s",prefs.getString("INCOMING_MESSAGE","Incoming Call!"),str);
 		playSound(str, playType.flush);
-		playSound(str,  playType.add);
+		for(int x=1;x < prefs.getInt("REPEAT_CALLER_ID",2);x++) {
+			playSilence(400);
+			playSound(str,  playType.add);
+		}
 	}
 
 	public void playTime(boolean userpress) {
@@ -300,6 +307,16 @@ public class LocalService extends Service {
 		playSound(sb.toString(), playType.skip);
 	}
 
+	public void playSilence(int duration)
+	{
+		if (!started || mTTS == null) {
+			return;
+		}
+		if(!duringCall && !ringMute) {
+			mTTS.playSilence(duration,TextToSpeech.QUEUE_ADD,myHash);
+		}
+	}
+	
 	public void playSound(String str,playType type) {
 		Locale	loc;
 		int		mode;
