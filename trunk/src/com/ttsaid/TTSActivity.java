@@ -136,9 +136,13 @@ public class TTSActivity extends Activity {
 				Locale [] loclist = Locale.getAvailableLocales();
 				final ArrayList<String> list = new ArrayList<String>();
 				
+				if(mTTS == null) {
+					Toast.makeText(TTSActivity.this,"Text to Speech languages not loaded",Toast.LENGTH_LONG).show();
+					return;
+				}
+				
 				for(int x=0;x < loclist.length;x++) {
-					int avail = mTTS.isLanguageAvailable(loclist[x]);
-					if(mTTS != null && (avail == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && avail == TextToSpeech.LANG_AVAILABLE))) {
+					if(mTTS.isLanguageAvailable(loclist[x]) == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && mTTS.isLanguageAvailable(loclist[x]) == TextToSpeech.LANG_AVAILABLE)) {
 						String str;
 						
 						if(loclist[x].getCountry().length() > 0) {
