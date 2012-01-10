@@ -63,7 +63,7 @@ public class TTSActivity extends Activity {
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
 	private String incomingMessage,smsMessage;
-	private int toPeriod,fromPeriod,repeatCallerId,repeatSMS;
+	private int toPeriod,fromPeriod,repeatCallerId,repeatSMS,currentStream;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -116,6 +116,7 @@ public class TTSActivity extends Activity {
 		smsMessage = prefs.getString("SMS_MESSAGE","SMS Received from");
 		repeatCallerId = prefs.getInt("REPEAT_CALLER_ID",2);
 		repeatSMS = prefs.getInt("REPEAT_SMS",1);
+		currentStream = prefs.getInt("STREAM",0);
 		interval = prefs.getInt("SET_INTERVAL", interval);
 		fromPeriod = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
 		toPeriod = prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD);
@@ -129,6 +130,51 @@ public class TTSActivity extends Activity {
 			mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,AppWidgetManager.INVALID_APPWIDGET_ID);
 		}
 
+		((TextView) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
+				Locale [] loclist = Locale.getAvailableLocales();
+				final ArrayList<String> list = new ArrayList<String>();
+				
+				for(int x=0;x < loclist.length;x++) {
+					int avail = mTTS.isLanguageAvailable(loclist[x]);
+					if(mTTS != null && (avail == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && avail == TextToSpeech.LANG_AVAILABLE))) {
+						String str;
+						
+						if(loclist[x].getCountry().length() > 0) {
+							str = String.format("%s %s (%s_%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage(),loclist[x].getCountry());
+						} else {
+							str = String.format("%s %s (%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage());
+						}
+						int y;
+		
+						for(y=0;y < list.size();y++) {
+							if(((String) list.get(y)).equals(str)) {
+								break;
+							}
+						}
+						if(y >= list.size()) {
+							list.add(str);
+						}
+					}
+				}
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,R.layout.rowlayout,list);
+				adapter.sort(new Comparator<String>() {
+					public int compare(String a, String b) {
+						return(a.compareTo(b));
+					}
+				});
+				dlg.setAdapter(adapter,new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						String str = adapter.getItem(which);
+						((EditText) findViewById(R.id.language)).setText(str.substring(str.indexOf("(")+1,str.indexOf(")")));
+					}
+				});
+				dlg.show();
+			}
+		});
+		
 		/* time interval - on click */
 		((TextView) findViewById(R.id.dateTimePlayback)).setOnClickListener(new OnClickListener() {			
 			public void onClick(View arg0) {
@@ -264,6 +310,7 @@ public class TTSActivity extends Activity {
 			}
 		});
 
+		/* incoming SMS */
 		((TextView) findViewById(R.id.incomingSMS)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
@@ -309,46 +356,15 @@ public class TTSActivity extends Activity {
 				dlg.show();
 			}
 		});
-
-		((TextView) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
+		
+		((TextView) findViewById(R.id.streaming)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
-				Locale [] loclist = Locale.getAvailableLocales();
-				final ArrayList<String> list = new ArrayList<String>();
-				
-				for(int x=0;x < loclist.length;x++) {
-					int avail = mTTS.isLanguageAvailable(loclist[x]);
-					if(mTTS != null && (avail == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && avail == TextToSpeech.LANG_AVAILABLE))) {
-						String str;
-						
-						if(loclist[x].getCountry().length() > 0) {
-							str = String.format("%s %s (%s_%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage(),loclist[x].getCountry());
-						} else {
-							str = String.format("%s %s (%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage());
-						}
-						int y;
-		
-						for(y=0;y < list.size();y++) {
-							if(((String) list.get(y)).equals(str)) {
-								break;
-							}
-						}
-						if(y >= list.size()) {
-							list.add(str);
-						}
-					}
-				}
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,R.layout.rowlayout,list);
-				adapter.sort(new Comparator<String>() {
-					public int compare(String a, String b) {
-						return(a.compareTo(b));
-					}
-				});
-				dlg.setAdapter(adapter,new DialogInterface.OnClickListener() {
-					
+				String [] streamList = {"Media","Alarm","Notification","Ringer","System"};
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,android.R.layout.select_dialog_singlechoice,streamList);
+				dlg.setSingleChoiceItems(adapter,currentStream,new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						String str = adapter.getItem(which);
-						((EditText) findViewById(R.id.language)).setText(str.substring(str.indexOf("(")+1,str.indexOf(")")));
+						currentStream = which;
 					}
 				});
 				dlg.show();
@@ -422,6 +438,7 @@ public class TTSActivity extends Activity {
 
 		SharedPreferences.Editor prefset = prefs.edit();
 		prefset.putInt("REPEAT_CALLER_ID", repeatCallerId);
+		prefset.putInt("STREAM",currentStream);
 		prefset.putInt("REPEAT_SMS", repeatSMS);
 		prefset.putInt("SET_INTERVAL", interval);
 		prefset.putBoolean("SET_SCREEN_EVENT", screenEvent);
