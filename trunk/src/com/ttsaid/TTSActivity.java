@@ -58,14 +58,9 @@ import android.widget.TimePicker;
 public class TTSActivity extends Activity {
 	private int MY_DATA_CHECK_CODE = 0x0001;
 	private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-	private int interval;
-	private boolean screenEvent;
-	private boolean callerId;
-	private boolean smsReceive;
 	private SharedPreferences prefs;
 	private TextToSpeech mTTS;
-	private String incomingMessage,smsMessage;
-	private int toPeriod,fromPeriod,repeatCallerId,repeatSMS,currentStream,timeFormat;
+	SharedPreferences.Editor prefset;
 
 	/* get result from activities */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -114,22 +109,9 @@ public class TTSActivity extends Activity {
 		startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
 		
 		/* preferences database */
+
 		prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
-
-		/* get parameters */
-
-		incomingMessage = prefs.getString("INCOMING_MESSAGE","Incoming Call!");
-		smsMessage = prefs.getString("SMS_MESSAGE","SMS Received from");
-		repeatCallerId = prefs.getInt("REPEAT_CALLER_ID",2);
-		repeatSMS = prefs.getInt("REPEAT_SMS",1);
-		timeFormat = prefs.getInt("TIME_FORMAT",12);
-		currentStream = prefs.getInt("STREAM",0);
-		interval = prefs.getInt("SET_INTERVAL", interval);
-		fromPeriod = prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD);
-		toPeriod = prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD);
-		screenEvent = prefs.getBoolean("SET_SCREEN_EVENT", false);
-		callerId = prefs.getBoolean("SET_CALLER_ID", false);
-		smsReceive = prefs.getBoolean("SET_SMS_RECEIVE", false);
+		prefset = prefs.edit();
 
 		/* get widget id */
 		Bundle extras = intent.getExtras();
@@ -139,19 +121,28 @@ public class TTSActivity extends Activity {
 
 		((TextView) findViewById(R.id.language)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
-				Locale [] loclist = Locale.getAvailableLocales();
-				final ArrayList<String> list = new ArrayList<String>();
-				
+				final AlertDialog.Builder	dlg			= new AlertDialog.Builder(TTSActivity.this);
+				Locale []					loclist		= Locale.getAvailableLocales();
+				final ArrayList<String>		list		= new ArrayList<String>();
+				String						lang		= prefs.getString("SET_LANGUAGE","");
+				int							selected	= 0;
+
 				if(mTTS == null) {
 					Toast.makeText(TTSActivity.this,"Text to Speech languages not loaded",Toast.LENGTH_LONG).show();
 					return;
 				}
-				
+				/* get default language if no language informed */
+				if(lang.length() == 0) {
+					lang = Locale.getDefault().getLanguage();
+					if(Locale.getDefault().getCountry().length() > 0) {
+						lang+=String.format("_%s",Locale.getDefault().getCountry());
+					}
+				}
+				/* prepare list of available languages */
 				for(int x=0;x < loclist.length;x++) {
 					if(mTTS.isLanguageAvailable(loclist[x]) == TextToSpeech.LANG_COUNTRY_AVAILABLE || (loclist[x].getCountry().length() == 0 && mTTS.isLanguageAvailable(loclist[x]) == TextToSpeech.LANG_AVAILABLE)) {
 						String str;
-						
+
 						if(loclist[x].getCountry().length() > 0) {
 							str = String.format("%s %s (%s_%s)",loclist[x].getDisplayLanguage(),loclist[x].getDisplayCountry(),loclist[x].getLanguage(),loclist[x].getCountry());
 						} else {
@@ -169,19 +160,37 @@ public class TTSActivity extends Activity {
 						}
 					}
 				}
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,R.layout.rowlayout,list);
+				/* verify if there is languages available */
+				if(list.size() == 0) {
+					Toast.makeText(TTSActivity.this,"No languages available. Check TTS settings",Toast.LENGTH_LONG).show();
+					return;
+				}
+				/* prepare adapter to show */
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,android.R.layout.select_dialog_singlechoice,list);
 				adapter.sort(new Comparator<String>() {
 					public int compare(String a, String b) {
 						return(a.compareTo(b));
 					}
 				});
-				dlg.setAdapter(adapter,new DialogInterface.OnClickListener() {
+				/* get current selected language */
+				for(int x=0;x < adapter.getCount();x++) {
+					String str = adapter.getItem(x);
 					
+					if(str.substring(str.indexOf("(")+1,str.indexOf(")")).equals(lang)) {
+						selected=x;
+					}
+				}
+				/* override select event */
+				dlg.setSingleChoiceItems(adapter,selected,new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						String str = adapter.getItem(which);
-						((EditText) findViewById(R.id.language)).setText(str.substring(str.indexOf("(")+1,str.indexOf(")")));
+						prefset.putString("SET_LANGUAGE",str.substring(str.indexOf("(")+1,str.indexOf(")")));
+						prefset.commit();
+						dialog.dismiss();
 					}
 				});
+				/* show the dialog */
+				dlg.setTitle("Select Language");
 				dlg.show();
 			}
 		});
@@ -195,12 +204,12 @@ public class TTSActivity extends Activity {
 				dlg.setView(timeView);
 
 				/* set current screen event mode */
-				((CheckBox) timeView.findViewById(R.id.screenEvent)).setChecked(screenEvent);
+				((CheckBox) timeView.findViewById(R.id.screenEvent)).setChecked(prefs.getBoolean("SET_SCREEN_EVENT", false));
 
 				/* set current date & time */
 
-				((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",fromPeriod/100,fromPeriod%100));
-				((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",toPeriod/100,toPeriod%100));
+				((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)%100));
+				((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d", prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)%100));
 
 				/* set interval event */
 				((SeekBar) timeView.findViewById(R.id.interval)).setMax(8);
@@ -215,7 +224,8 @@ public class TTSActivity extends Activity {
 
 							public void onProgressChanged(SeekBar seekBar,
 									int progress, boolean fromUser) {
-								interval = setTimeInterval(timeView.findViewById(R.id.intervalValue),progress);
+								prefset.putInt("SET_INTERVAL", setTimeInterval(timeView.findViewById(R.id.intervalValue),progress));
+								prefset.commit();
 							}
 						});
 				
@@ -225,7 +235,8 @@ public class TTSActivity extends Activity {
 
 							public void onCheckedChanged(CompoundButton buttonView,
 									boolean isChecked) {
-								screenEvent = isChecked;
+								prefset.putBoolean("SET_SCREEN_EVENT",isChecked);
+								prefset.commit();
 							}
 						});
 				
@@ -237,15 +248,16 @@ public class TTSActivity extends Activity {
 						/* listener for 'from' time picker */
 						TimePickerDialog.OnTimeSetListener timeFromListener = new TimePickerDialog.OnTimeSetListener() {
 							public void onTimeSet(TimePicker view, int hour, int minute) {
-								if(hour*100+minute > toPeriod) {
+								if(hour*100+minute >  prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)) {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
-									fromPeriod=hour*100+minute;
+									prefset.putInt("FROM_PERIOD",hour*100+minute);
+									prefset.commit();
 									((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",hour,minute));
 								}
 							}
 						};
-						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,fromPeriod/100,fromPeriod%100,true);
+						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)%100,true);
 						tm.setTitle("Select time");
 						tm.show();
 					}
@@ -258,15 +270,16 @@ public class TTSActivity extends Activity {
 						/* listener for 'to' time picker */
 						TimePickerDialog.OnTimeSetListener timeToListener = new TimePickerDialog.OnTimeSetListener() {
 							public void onTimeSet(TimePicker view, int hour, int minute) {
-								if(fromPeriod > hour*100+minute) {
+								if(prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD) > hour*100+minute) {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
-									toPeriod=hour*100+minute;
+									prefset.putInt("TO_PERIOD",hour*100+minute);
+									prefset.commit();
 									((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d",hour,minute));
 								}
 							}
 						};
-						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener,toPeriod/100,toPeriod%100,true);
+						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)%100,true);
 						tm.setTitle("Select time");
 						tm.show();
 					}
@@ -274,12 +287,13 @@ public class TTSActivity extends Activity {
 				/* time format */
 				((RadioGroup) timeView.findViewById(R.id.timeFormat)).setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 					public void onCheckedChanged(RadioGroup group, int checkedId) {
-						timeFormat = (checkedId == R.id.tf12) ? 12 : 24;
+						prefset.putInt("TIME_FORMAT",(checkedId == R.id.tf12) ? 12 : 24);
+						prefset.commit();
 					}
 				});
-				((RadioGroup) timeView.findViewById(R.id.timeFormat)).check((timeFormat == 12) ? R.id.tf12 : R.id.tf24);
+				((RadioGroup) timeView.findViewById(R.id.timeFormat)).check((prefs.getInt("TIME_FORMAT",12) == 12) ? R.id.tf12 : R.id.tf24);
 				/* set current interval */
-				((SeekBar) timeView.findViewById(R.id.interval)).setProgress(interval);
+				((SeekBar) timeView.findViewById(R.id.interval)).setProgress(prefs.getInt("SET_INTERVAL",0));
 				dlg.show();
 			}
 		});
@@ -288,13 +302,14 @@ public class TTSActivity extends Activity {
 			public void onClick(View v) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
 				final LayoutInflater layoutInflater = LayoutInflater.from(TTSActivity.this);
-				final View callView = layoutInflater.inflate(R.layout.incomingcall, null);
+				final View callView = layoutInflater.inflate(R.layout.callerid, null);
 				dlg.setView(callView);
 				
-				((CheckBox) callView.findViewById(R.id.callerIdEvent)).setChecked(callerId);
+				((CheckBox) callView.findViewById(R.id.callerIdEvent)).setChecked(prefs.getBoolean("SET_CALLER_ID", false));
 				((CheckBox) callView.findViewById(R.id.callerIdEvent)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 					public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
-						callerId = isChecked;
+						prefset.putBoolean("SET_CALLER_ID",isChecked);
+						prefset.commit();
 					}
 				});
 				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setMax(3);
@@ -312,17 +327,19 @@ public class TTSActivity extends Activity {
 					}
 					
 					public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-						repeatCallerId = progress + 1;
-						((TextView) callView.findViewById(R.id.repeatCallerId)).setText(""+repeatCallerId);
+						prefset.putInt("REPEAT_CALLER_ID",progress + 1);
+						prefset.commit();
+						((TextView) callView.findViewById(R.id.repeatCallerId)).setText(""+(progress + 1));
 					}
 				});
 				dlg.setOnCancelListener(new OnCancelListener() {
 					public void onCancel(DialogInterface dialog) {
-						incomingMessage = ((EditText) callView.findViewById(R.id.incomingMessage)).getText().toString();
+						prefset.putString("INCOMING_MESSAGE",((EditText) callView.findViewById(R.id.incomingMessage)).getText().toString());		
+						prefset.commit();
 					}
 				});
-				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setProgress(repeatCallerId-1);
-				((EditText) callView.findViewById(R.id.incomingMessage)).setText(incomingMessage);
+				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setProgress(prefs.getInt("REPEAT_CALLER_ID",2)-1);
+				((EditText) callView.findViewById(R.id.incomingMessage)).setText(prefs.getString("INCOMING_MESSAGE","Incoming Call!"));
 				dlg.show();
 			}
 		});
@@ -335,13 +352,14 @@ public class TTSActivity extends Activity {
 				final View smsView = layoutInflater.inflate(R.layout.sms, null);
 				dlg.setView(smsView);
 				
-				((CheckBox) smsView.findViewById(R.id.smsReceive)).setChecked(smsReceive);
+				((CheckBox) smsView.findViewById(R.id.smsReceive)).setChecked(prefs.getBoolean("SET_SMS_RECEIVE", false));
 				/* sms message event - on click */
 				((CheckBox) smsView.findViewById(R.id.smsReceive)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
-						smsReceive = isChecked;
+						prefset.putBoolean("SET_SMS_RECEIVE",isChecked);
+						prefset.commit();
 					}
 				});
 				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setMax(3);
@@ -359,17 +377,20 @@ public class TTSActivity extends Activity {
 					}
 					
 					public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-						repeatSMS = progress + 1;
-						((TextView) smsView.findViewById(R.id.repeatSMS)).setText(""+repeatSMS);
+						prefset.putInt("REPEAT_SMS",progress + 1);
+						prefset.commit();
+						((TextView) smsView.findViewById(R.id.repeatSMS)).setText(""+(progress+1));
 					}
 				});
 				dlg.setOnCancelListener(new OnCancelListener() {
 					public void onCancel(DialogInterface dialog) {
-						smsMessage = ((EditText) smsView.findViewById(R.id.smsMessage)).getText().toString();
+						prefset.putString("SMS_MESSAGE",((EditText) smsView.findViewById(R.id.smsMessage)).getText().toString());
+						prefset.commit();
+
 					}
 				});
-				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setProgress(repeatSMS-1);
-				((EditText) smsView.findViewById(R.id.smsMessage)).setText(smsMessage);
+				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setProgress(prefs.getInt("REPEAT_SMS",1)-1);
+				((EditText) smsView.findViewById(R.id.smsMessage)).setText(prefs.getString("SMS_MESSAGE","SMS Received from"));
 				dlg.show();
 			}
 		});
@@ -379,19 +400,17 @@ public class TTSActivity extends Activity {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
 				String [] streamList = {"Media","Alarm","Notification","Ringer","System"};
 				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(TTSActivity.this,android.R.layout.select_dialog_singlechoice,streamList);
-				dlg.setSingleChoiceItems(adapter,currentStream,new DialogInterface.OnClickListener() {
+				dlg.setSingleChoiceItems(adapter,prefs.getInt("STREAM",0),new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						currentStream = which;
+						prefset.putInt("STREAM",which);
+						prefset.commit();
 						dialog.dismiss();
 					}
 				});
+				dlg.setTitle("Select output stream");
 				dlg.show();
 			}
 		});
-		
-		/* set current values */
-
-		((EditText) findViewById(R.id.language)).setText(prefs.getString("SET_LANGUAGE","en"));
 	}
 
 	private int setTimeInterval(View view,int progress)
@@ -451,26 +470,6 @@ public class TTSActivity extends Activity {
 		Intent resultValue = new Intent();
 		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 		setResult(RESULT_OK, resultValue);
-
-		/* save preferences */
-
-		SharedPreferences.Editor prefset = prefs.edit();
-		prefset.putInt("REPEAT_CALLER_ID", repeatCallerId);
-		prefset.putInt("STREAM",currentStream);
-		prefset.putInt("REPEAT_SMS", repeatSMS);
-		prefset.putInt("SET_INTERVAL", interval);
-		prefset.putBoolean("SET_SCREEN_EVENT", screenEvent);
-		prefset.putBoolean("SET_CALLER_ID", callerId);
-		prefset.putBoolean("SET_SMS_RECEIVE", smsReceive);
-		prefset.putString("INCOMING_MESSAGE",incomingMessage);		
-		prefset.putString("SMS_MESSAGE",smsMessage);
-		prefset.putInt("FROM_PERIOD",fromPeriod);
-		prefset.putInt("TO_PERIOD",toPeriod);
-		prefset.putInt("TIME_FORMAT",timeFormat);
-		String lang =  ((EditText) findViewById(R.id.language)).getText().toString();
-		if(lang.length() == 0) lang = "en";
-		prefset.putString("SET_LANGUAGE",lang);
-		prefset.commit();
 
 		/* start service */
 
