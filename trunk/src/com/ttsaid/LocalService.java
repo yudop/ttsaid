@@ -317,33 +317,33 @@ public class LocalService extends Service {
 		String str;
 			
 		if(l.getLanguage().startsWith("pt")) {
-			str = String.format("%d horas e %d minutos",hour,minute);
+			str = String.format(getString(R.string.lang_dt_pt),hour,minute);
 		} else if(l.getLanguage().startsWith("en")) {
-			str = String.format("%d hours and %d minutes",hour,minute);
+			str = String.format(getString(R.string.lang_dt_en),hour,minute);
 		} else if(l.getLanguage().startsWith("es")) {
-			str = String.format("%d horas e %d minutos",hour,minute);
+			str = String.format(getString(R.string.lang_dt_es),hour,minute);
 		} else if(l.getLanguage().startsWith("it")) {
-			str = String.format("%d ore e %d minuti",hour,minute);
+			str = String.format(getString(R.string.lang_dt_it),hour,minute);
 		} else if(l.getLanguage().startsWith("ja")) {
-			str = String.format("%d時間%d分",hour,minute);
+			str = String.format(getString(R.string.lang_dt_ja),hour,minute);
 		} else if(l.getLanguage().startsWith("ch")) {
-			str = String.format("%d小时和%d分钟",hour,minute);
+			str = String.format(getString(R.string.lang_dt_ch),hour,minute);
 		} else if(l.getLanguage().startsWith("de")) {
-			str = String.format("%d Stunden und %d Minuten",hour,minute);
+			str = String.format(getString(R.string.lang_dt_de),hour,minute);
 		} else if(l.getLanguage().startsWith("hi")) {
-			str = String.format("%d घंटे और %d मिनट",hour,minute);
+			str = String.format(getString(R.string.lang_dt_hi),hour,minute);
 		} else if(l.getLanguage().startsWith("ko")) {
-			str = String.format("%d 시간 %d분",hour,minute);
+			str = String.format(getString(R.string.lang_dt_ko),hour,minute);
 		} else if(l.getLanguage().startsWith("ru")) {
-			str = String.format("%d часов и %d минут",hour,minute);
+			str = String.format(getString(R.string.lang_dt_ru),hour,minute);
 		} else if(l.getLanguage().startsWith("el")) {
-			str = String.format("%d ώρες και %d λεπτά",hour,minute);
+			str = String.format(getString(R.string.lang_dt_el),hour,minute);
 		} else if(l.getLanguage().startsWith("fr")) {
-			str = String.format("%d heures et %d minutes",hour,minute);
+			str = String.format(getString(R.string.lang_dt_fr),hour,minute);
 		} else if(l.getLanguage().startsWith("ar")) {
-			str = String.format("%d ساعات و %d دقيقة",hour,minute);
+			str = String.format(getString(R.string.lang_dt_ar),hour,minute);
 		} else if(l.getLanguage().startsWith("nl")) {
-			str = String.format("%d uur en %d minuten",hour,minute);
+			str = String.format(getString(R.string.lang_dt_nl),hour,minute);
 		} else { 
 			str = String.format("%02d:%02d",hour,minute);
 		}
