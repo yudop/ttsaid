@@ -324,7 +324,7 @@ public class LocalService extends Service {
 			str = String.format("%d horas e %d minutos",hour,minute);
 		} else if(l.getLanguage().startsWith("it")) {
 			str = String.format("%d ore e %d minuti",hour,minute);
-		} else if(l.getLanguage().startsWith("jp")) {
+		} else if(l.getLanguage().startsWith("ja")) {
 			str = String.format("%d時間%d分",hour,minute);
 		} else if(l.getLanguage().startsWith("ch")) {
 			str = String.format("%d小时和%d分钟",hour,minute);
