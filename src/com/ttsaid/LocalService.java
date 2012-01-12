@@ -311,6 +311,46 @@ public class LocalService extends Service {
 		}
 	}
 
+	/* return formatted date & time according to locale */
+	public String getTimeString(Locale l,int hour,int minute)
+	{
+		String str;
+			
+		if(l.getLanguage().startsWith("pt")) {
+			str = String.format("%d horas e %d minutos",hour,minute);
+		} else if(l.getLanguage().startsWith("en")) {
+			str = String.format("%d hours and %d minutes",hour,minute);
+		} else if(l.getLanguage().startsWith("es")) {
+			str = String.format("%d horas e %d minutos",hour,minute);
+		} else if(l.getLanguage().startsWith("it")) {
+			str = String.format("%d ore e %d minuti",hour,minute);
+		} else if(l.getLanguage().startsWith("jp")) {
+			str = String.format("%d時間%d分",hour,minute);
+		} else if(l.getLanguage().startsWith("ch")) {
+			str = String.format("%d小时和%d分钟",hour,minute);
+		} else if(l.getLanguage().startsWith("de")) {
+			str = String.format("%d Stunden und %d Minuten",hour,minute);
+		} else if(l.getLanguage().startsWith("hi")) {
+			str = String.format("%d घंटे और %d मिनट",hour,minute);
+		} else if(l.getLanguage().startsWith("ko")) {
+			str = String.format("%d 시간 %d분",hour,minute);
+		} else if(l.getLanguage().startsWith("ru")) {
+			str = String.format("%d часов и %d минут",hour,minute);
+		} else if(l.getLanguage().startsWith("el")) {
+			str = String.format("%d ώρες και %d λεπτά",hour,minute);
+		} else if(l.getLanguage().startsWith("fr")) {
+			str = String.format("%d heures et %d minutes",hour,minute);
+		} else if(l.getLanguage().startsWith("ar")) {
+			str = String.format("%d ساعات و %d دقيقة",hour,minute);
+		} else if(l.getLanguage().startsWith("nl")) {
+			str = String.format("%d uur en %d minuten",hour,minute);
+		} else { 
+			str = String.format("%02d:%02d",hour,minute);
+		}
+		return(str);
+	}
+	
+	/* play current date & time */
 	public void playTime(boolean userpress) {
 		
 		if(!userpress) {
@@ -335,19 +375,21 @@ public class LocalService extends Service {
 		Date date = new Date(System.currentTimeMillis());
 		
 		Formatter formatter = new Formatter(sb,loc);
-		formatter.format(loc,"%tA, ",date);
-		formatter.format(loc,"%tB ",date);
-		formatter.format(loc,"%te. ",date);
+		formatter.format(loc,"%tA, ",date);		// localized weekday name
+		formatter.format(loc,"%tB ",date);		// localized month name
+		formatter.format(loc,"%te. ",date);		// day of month
 		if(prefs.getInt("TIME_FORMAT",12) == 12) {
-			formatter.format(loc,"%tr ",date);
+			sb.append(getTimeString(loc,(date.getHours() % 12 == 0) ? 12 : date.getHours()%12,date.getMinutes()));
+			formatter.format(loc," %Tp",date);	// am or pm
 		} else {
-			formatter.format(loc,"%tT ",date);
+			sb.append(getTimeString(loc,date.getHours(),date.getMinutes()));
 		}
 		if(!duringRing) {
 			playSound(sb.toString(), playType.skip);
 		}
 	}
 
+	/* play silence with defined duration in milleseconds */
 	public void playSilence(int duration)
 	{
 		if (!started || mTTS == null) {
