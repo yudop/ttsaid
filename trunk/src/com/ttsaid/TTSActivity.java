@@ -297,6 +297,8 @@ public class TTSActivity extends Activity {
 				((RadioGroup) timeView.findViewById(R.id.timeFormat)).check((prefs.getInt("TIME_FORMAT",12) == 12) ? R.id.tf12 : R.id.tf24);
 				/* set current interval */
 				((SeekBar) timeView.findViewById(R.id.interval)).setProgress(prefs.getInt("SET_INTERVAL",0));
+				dlg.setTitle(R.string.dateAndTime);
+				dlg.setIcon(R.drawable.alarm);
 				dlg.show();
 			}
 		});
@@ -343,6 +345,8 @@ public class TTSActivity extends Activity {
 				});
 				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setProgress(prefs.getInt("REPEAT_CALLER_ID",2)-1);
 				((EditText) callView.findViewById(R.id.incomingMessage)).setText(prefs.getString("INCOMING_MESSAGE","Incoming Call!"));
+				dlg.setIcon(R.drawable.address);
+				dlg.setTitle(R.string.incomingCall);
 				dlg.show();
 			}
 		});
@@ -394,6 +398,8 @@ public class TTSActivity extends Activity {
 				});
 				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setProgress(prefs.getInt("REPEAT_SMS",1)-1);
 				((EditText) smsView.findViewById(R.id.smsMessage)).setText(prefs.getString("SMS_MESSAGE","SMS Received from"));
+				dlg.setIcon(R.drawable.message);
+				dlg.setTitle(R.string.incomingSMS);
 				dlg.show();
 			}
 		});
