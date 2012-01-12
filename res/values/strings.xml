@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">TTS Aid</string>
     <string name="off">Off</string>
     <string name="spanish">Español</string>
@@ -29,4 +30,19 @@
     <string name="streaming">Streaming</string>
     <string name="tf12">12hs</string>
     <string name="tf24">24hs</string>
+    <string name="lang_dt_pt" formatted="false">%d horas e %d minutos</string>
+    <string name="lang_dt_en" formatted="false">%d hours and %d minutes</string>
+    <string name="lang_dt_es" formatted="false">%d horas e %d minutos</string>
+    <string name="lang_dt_it" formatted="false">%d ore e %d minuti</string>
+    <string name="lang_dt_ja" formatted="false">%d時間%d分"</string>
+    <string name="lang_dt_ch" formatted="false">%d小时和%d分钟</string>
+    <string name="lang_dt_de" formatted="false">%d Stunden und %d Minuten</string>
+    <string name="lang_dt_hi" formatted="false">%d घंटे और %d मिनट</string>
+    <string name="lang_dt_ko" formatted="false">%d 시간 %d분</string>
+    <string name="lang_dt_ru" formatted="false">%d часов и %d минут</string>
+    <string name="lang_dt_el" formatted="false">%d ώρες και %d λεπτά</string>
+    <string name="lang_dt_fr" formatted="false">%d heures et %d minutes</string>
+    <string name="lang_dt_ar" formatted="false">%d ساعات و %d دقيقة</string>
+    <string name="lang_dt_nl" formatted="false">%d uur en %d minuten</string>
+
 </resources>
