@@ -128,7 +128,7 @@ public class TTSActivity extends Activity {
 				int							selected	= 0;
 
 				if(mTTS == null) {
-					Toast.makeText(TTSActivity.this,"Text to Speech languages not loaded",Toast.LENGTH_LONG).show();
+					Toast.makeText(TTSActivity.this,R.string.notLoaded,Toast.LENGTH_LONG).show();
 					return;
 				}
 				/* get default language if no language informed */
@@ -190,7 +190,7 @@ public class TTSActivity extends Activity {
 					}
 				});
 				/* show the dialog */
-				dlg.setTitle("Select Language");
+				dlg.setTitle(R.string.language);
 				dlg.setIcon(R.drawable.dictionary);
 				dlg.show();
 			}
@@ -259,7 +259,7 @@ public class TTSActivity extends Activity {
 							}
 						};
 						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)%100,true);
-						tm.setTitle("Select time");
+						tm.setTitle(R.string.selectTime);
 						tm.setIcon(R.drawable.time);
 						tm.show();
 					}
@@ -282,7 +282,7 @@ public class TTSActivity extends Activity {
 							}
 						};
 						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)%100,true);
-						tm.setTitle("Select time");
+						tm.setTitle(R.string.selectTime);
 						tm.setIcon(R.drawable.time);
 						tm.show();
 					}
@@ -416,7 +416,7 @@ public class TTSActivity extends Activity {
 						dialog.dismiss();
 					}
 				});
-				dlg.setTitle("Select output stream");
+				dlg.setTitle(R.string.streaming);
 				dlg.setIcon(R.drawable.speaker);
 				dlg.show();
 			}
