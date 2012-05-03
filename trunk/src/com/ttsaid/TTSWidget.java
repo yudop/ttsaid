@@ -47,26 +47,44 @@ public class TTSWidget extends AppWidgetProvider {
 
 		Log.d("TTSWidget onreceive", "receiving action: " + intent.getAction());
 		if (LocalService.PLAY_SOUND.equals(intent.getAction())) {
-			Intent play = new Intent(context, LocalService.class);
+			final Intent play = new Intent(context, LocalService.class);
 			play.putExtra("PLAY_SOUND", true);
-			context.startService(play);
+			Thread t = new Thread(new Runnable() {
+				
+				public void run() {
+					context.startService(play);
+				}
+			});
+			t.start();
 		} else if (LocalService.PLAY_AND_ENQUEUE.equals(intent.getAction())) {
-			Intent play = new Intent(context, LocalService.class);
+			final Intent play = new Intent(context, LocalService.class);
 			play.putExtra("PLAY_AND_ENQUEUE", true);
-			context.startService(play);
+			Thread t = new Thread(new Runnable() {
+				
+				public void run() {
+					context.startService(play);
+				}
+			});
+			t.start();
 		}
 	}
 
 	@Override
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager,int[] appWidgetIds) {
+	public void onUpdate(final Context context, AppWidgetManager appWidgetManager,int[] appWidgetIds) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 		final int N = appWidgetIds.length;
 		RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.main);
 
 		/* start service */
 
-		Intent intent = new Intent(context, LocalService.class);
-		context.startService(intent);
+		final Intent intent = new Intent(context, LocalService.class);
+		Thread t = new Thread(new Runnable() {
+			
+			public void run() {
+				context.startService(intent);
+			}
+		});
+		t.start();
 
 		Log.d("TTSWidget", "on update ");
 		/* update every app from this provider */
