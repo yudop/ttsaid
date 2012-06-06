@@ -456,7 +456,7 @@ public class TTSActivity extends Activity {
 
 		/* set play action on widget canvas */
 
-		Intent play = new Intent(TTSWidget.PLAY_SOUND);
+		Intent play = new Intent(TTSWidget.PLAY_TIME);
 		play.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(TTSActivity.this, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.play, pendingIntent);
