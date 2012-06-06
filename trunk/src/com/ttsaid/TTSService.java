@@ -252,9 +252,12 @@ public class TTSService extends Service {
 					BroadcastReceiver receiver = null;
 
 					if(status == TextToSpeech.SUCCESS) {
-						if(TTSWidget.PLAY_SOUND.equals(intent.getAction())) {
+						if(TTSWidget.PLAY_TIME.equals(intent.getAction())) {
 							setStream(prefs.getInt("STREAM",0));
-							playTime(mTTS,TTSService.this,true,prefs.getString("SET_LANGUAGE", "en"),prefs.getInt("TIME_FORMAT",12),prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD),prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD));
+							Log.d(TTSService.this.getPackageName(),"screen event == " + intent.getBooleanExtra("screenEvent",false));
+							if(!intent.getBooleanExtra("screenEvent",false) || prefs.getBoolean("SET_SCREEN_EVENT",true)) {
+								playTime(mTTS,TTSService.this,intent.getBooleanExtra("enqueue",false) == false,prefs.getString("SET_LANGUAGE", "en"),prefs.getInt("TIME_FORMAT",12),prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD),prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD));
+							}
 							if(intent.getBooleanExtra("enqueue",false)) {
 								enQueue(TTSService.this,prefs.getInt("SET_INTERVAL",0));
 							}

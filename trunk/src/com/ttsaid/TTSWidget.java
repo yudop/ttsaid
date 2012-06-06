@@ -36,7 +36,7 @@ import android.widget.RemoteViews;
 
 public class TTSWidget extends AppWidgetProvider {
 	public	static	final	String					PREFS_DB = "com.ttsaid.prefs.db";
-	public	static	final	String					PLAY_SOUND = "com.ttsaid.intent.action.PLAY_SOUND";
+	public	static	final	String					PLAY_TIME = "com.ttsaid.intent.action.PLAY_TIME";
 	public	static	final	String					PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
 	public	static	final	String					DO_NOTHING = "om.ttsaid.intent.action.DO_NOTHING";
 	public	static	final	int						FROM_PERIOD = 800; // default 'from' period 8:00am
@@ -55,8 +55,9 @@ public class TTSWidget extends AppWidgetProvider {
 		super.onReceive(context, intent);
 
 		Log.d("TTSWidget onreceive", "receiving action: " + intent.getAction());
-		
-		if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction()) || PLAY_SOUND.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || SMS_RECEIVED_ACTION.equals(intent.getAction())) {
+		if(AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
+
+		} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction()) || PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || SMS_RECEIVED_ACTION.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 			SharedPreferences prefs =  context.getSharedPreferences(PREFS_DB, 0);
 
 			if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
@@ -73,11 +74,14 @@ public class TTSWidget extends AppWidgetProvider {
 						t.start();
 					}
 				}
-			} else if (PLAY_SOUND.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction())) {
+			} else if (PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 				final Intent si = new Intent(context,TTSService.class);
-				si.setAction(PLAY_SOUND);
+				si.setAction(PLAY_TIME);
 				if(PLAY_AND_ENQUEUE.equals(intent.getAction())) {
 					si.putExtra("enqueue",true);
+				}
+				if(Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+					si.putExtra("screenEvent",true);
 				}
 				Thread t = new Thread(new Runnable() {
 					public void run() {
@@ -122,7 +126,7 @@ public class TTSWidget extends AppWidgetProvider {
 		for (int i = 0; i < N; i++) {
 			int appWidgetId = appWidgetIds[i];
 			/* set play sound action on widget canvas */
-			Intent play = new Intent(PLAY_SOUND);
+			Intent play = new Intent(PLAY_TIME);
 			play.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(context,0, play, PendingIntent.FLAG_UPDATE_CURRENT);
 			views.setOnClickPendingIntent(R.id.play, pendingIntent);
