@@ -62,19 +62,29 @@ public class TTSWidget extends AppWidgetProvider {
 			if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
 				if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
 					if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
-						Intent si = new Intent(context,TTSService.class);
+						final Intent si = new Intent(context,TTSService.class);
 						si.setAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 						si.putExtra("phoneNumber",intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
-						context.startService(si);
+						Thread t = new Thread(new Runnable() {
+							public void run() {
+								context.startService(si);
+							}
+						});
+						t.start();
 					}
 				}
 			} else if (PLAY_SOUND.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction())) {
-				Intent si = new Intent(context,TTSService.class);
+				final Intent si = new Intent(context,TTSService.class);
 				si.setAction(PLAY_SOUND);
 				if(PLAY_AND_ENQUEUE.equals(intent.getAction())) {
 					si.putExtra("enqueue",true);
 				}
-				context.startService(si);
+				Thread t = new Thread(new Runnable() {
+					public void run() {
+						context.startService(si);
+					}
+				});
+				t.start();
 			} else if(SMS_RECEIVED_ACTION.equals(intent.getAction()) && prefs.getBoolean("SET_SMS_RECEIVE", false)) {
 				Bundle bundle = intent.getExtras();
 				if(bundle == null) {
@@ -86,11 +96,16 @@ public class TTSWidget extends AppWidgetProvider {
 					messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
 				}
 				if (messages.length > -1) {
-					Intent si = new Intent(context,TTSService.class);
+					final Intent si = new Intent(context,TTSService.class);
 					si.setAction(SMS_RECEIVED_ACTION);
 					si.putExtra("message",messages[0].getMessageBody());
 					si.putExtra("phoneNumber",messages[0].getOriginatingAddress());
-					context.startService(si);
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							context.startService(si);
+						}
+					});
+					t.start();
 				}
 			}
 		}
