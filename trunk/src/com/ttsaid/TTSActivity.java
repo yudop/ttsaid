@@ -110,7 +110,7 @@ public class TTSActivity extends Activity {
 		
 		/* preferences database */
 
-		prefs = getSharedPreferences(LocalService.PREFS_DB, 0);
+		prefs = getSharedPreferences(TTSWidget.PREFS_DB, 0);
 		prefset = prefs.edit();
 
 		/* get widget id */
@@ -209,8 +209,8 @@ public class TTSActivity extends Activity {
 
 				/* set current date & time */
 
-				((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)%100));
-				((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d", prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)%100));
+				((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD)%100));
+				((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d", prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)%100));
 
 				/* set interval event */
 				((SeekBar) timeView.findViewById(R.id.interval)).setMax(8);
@@ -249,7 +249,7 @@ public class TTSActivity extends Activity {
 						/* listener for 'from' time picker */
 						TimePickerDialog.OnTimeSetListener timeFromListener = new TimePickerDialog.OnTimeSetListener() {
 							public void onTimeSet(TimePicker view, int hour, int minute) {
-								if(hour*100+minute >  prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)) {
+								if(hour*100+minute >  prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)) {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
 									prefset.putInt("FROM_PERIOD",hour*100+minute);
@@ -258,7 +258,7 @@ public class TTSActivity extends Activity {
 								}
 							}
 						};
-						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD)%100,true);
+						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeFromListener,prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD)%100,true);
 						tm.setTitle(R.string.selectTime);
 						tm.setIcon(R.drawable.time);
 						tm.show();
@@ -272,7 +272,7 @@ public class TTSActivity extends Activity {
 						/* listener for 'to' time picker */
 						TimePickerDialog.OnTimeSetListener timeToListener = new TimePickerDialog.OnTimeSetListener() {
 							public void onTimeSet(TimePicker view, int hour, int minute) {
-								if(prefs.getInt("FROM_PERIOD",LocalService.FROM_PERIOD) > hour*100+minute) {
+								if(prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD) > hour*100+minute) {
 									Toast.makeText(TTSActivity.this,"To period must be equal or greater than From period",Toast.LENGTH_LONG).show();
 								} else {
 									prefset.putInt("TO_PERIOD",hour*100+minute);
@@ -281,7 +281,7 @@ public class TTSActivity extends Activity {
 								}
 							}
 						};
-						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",LocalService.TO_PERIOD)%100,true);
+						final TimePickerDialog tm = new TimePickerDialog(TTSActivity.this,timeToListener, prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)%100,true);
 						tm.setTitle(R.string.selectTime);
 						tm.setIcon(R.drawable.time);
 						tm.show();
@@ -435,7 +435,7 @@ public class TTSActivity extends Activity {
 		if (progress > 3) {
 			hour = new Integer(progress / 4).toString();
 		}
-		m = new Integer(progress % 4 * LocalService.ALARM_MIN_INTERVAL);
+		m = new Integer(progress % 4 * TTSWidget.ALARM_MIN_INTERVAL);
 		if (hour.length() > 0) {
 			hour = hour + "h:" + String.format("%02d", m) + "m";
 		} else {
@@ -456,7 +456,7 @@ public class TTSActivity extends Activity {
 
 		/* set play action on widget canvas */
 
-		Intent play = new Intent(LocalService.PLAY_SOUND);
+		Intent play = new Intent(TTSWidget.PLAY_SOUND);
 		play.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(TTSActivity.this, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.play, pendingIntent);
@@ -472,8 +472,8 @@ public class TTSActivity extends Activity {
 
 		/* set new values on service */
 
-		Intent intent = new Intent(TTSActivity.this, LocalService.class);
-		startService(intent);
+		//Intent intent = new Intent(TTSActivity.this, LocalService.class);
+		//startService(intent);
 
 		/* set result */
 
@@ -483,9 +483,9 @@ public class TTSActivity extends Activity {
 
 		/* start service */
 
-		intent = new Intent(TTSActivity.this, LocalService.class);
-		intent.putExtra("RESET_PARAM",true);
-		startService(intent);
+		//intent = new Intent(TTSActivity.this, LocalService.class);
+		//intent.putExtra("RESET_PARAM",true);
+		//startService(intent);
 
 		finish();
 	}
