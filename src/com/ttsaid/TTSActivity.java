@@ -204,17 +204,14 @@ public class TTSActivity extends Activity {
 				final View timeView = layoutInflater.inflate(R.layout.interval, null);
 				dlg.setView(timeView);
 
-				/* set current screen event mode */
-				((CheckBox) timeView.findViewById(R.id.screenEvent)).setChecked(prefs.getBoolean("SET_SCREEN_EVENT", false));
-
 				/* set current date & time */
 
 				((TextView) timeView.findViewById(R.id.fromTime)).setText(String.format("%02d:%02d",prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD)/100,prefs.getInt("FROM_PERIOD",TTSWidget.FROM_PERIOD)%100));
 				((TextView) timeView.findViewById(R.id.toTime)).setText(String.format("%02d:%02d", prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)/100, prefs.getInt("TO_PERIOD",TTSWidget.TO_PERIOD)%100));
 
 				/* set interval event */
-				((SeekBar) timeView.findViewById(R.id.interval)).setMax(8);
-				((SeekBar) timeView.findViewById(R.id.interval)).setKeyProgressIncrement(1);
+				((SeekBar) timeView.findViewById(R.id.interval)).setMax(120);
+				((SeekBar) timeView.findViewById(R.id.interval)).setKeyProgressIncrement(5);
 				((SeekBar) timeView.findViewById(R.id.interval)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 							public void onStopTrackingTouch(SeekBar seekBar) {
@@ -223,20 +220,9 @@ public class TTSActivity extends Activity {
 							public void onStartTrackingTouch(SeekBar seekBar) {
 							}
 
-							public void onProgressChanged(SeekBar seekBar,
-									int progress, boolean fromUser) {
+							public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser) {
+								if(progress != 0 && progress < 15) progress = 15;
 								prefset.putInt("SET_INTERVAL", setTimeInterval(timeView.findViewById(R.id.intervalValue),progress));
-								prefset.commit();
-							}
-						});
-				
-				/* screen event - on click */
-				((CheckBox) timeView.findViewById(R.id.screenEvent))
-						.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-							public void onCheckedChanged(CompoundButton buttonView,
-									boolean isChecked) {
-								prefset.putBoolean("SET_SCREEN_EVENT",isChecked);
 								prefset.commit();
 							}
 						});
@@ -432,10 +418,10 @@ public class TTSActivity extends Activity {
 			((TextView) view).setText(getString(R.string.off));
 			return(0);
 		}
-		if (progress > 3) {
-			hour = new Integer(progress / 4).toString();
+		if (progress > 60) {
+			hour = new Integer(progress / 60).toString();
 		}
-		m = new Integer(progress % 4 * TTSWidget.ALARM_MIN_INTERVAL);
+		m = new Integer(progress % 60);
 		if (hour.length() > 0) {
 			hour = hour + "h:" + String.format("%02d", m) + "m";
 		} else {
@@ -481,8 +467,13 @@ public class TTSActivity extends Activity {
 		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 		setResult(RESULT_OK, resultValue);
 
-		/* start service */
+		/* signalize widget */
 
+		/* start widget */
+		Intent start = new Intent(TTSWidget.CONFIG_CHANGED);
+		start.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+		sendBroadcast(start);
+		
 		//intent = new Intent(TTSActivity.this, LocalService.class);
 		//intent.putExtra("RESET_PARAM",true);
 		//startService(intent);

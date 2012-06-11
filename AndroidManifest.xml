@@ -19,6 +19,7 @@
 				<action android:name="com.ttsaid.intent.action.PLAY_AND_ENQUEUE" />
 				<action android:name="android.provider.Telephony.SMS_RECEIVED"/>
 				<action android:name="android.intent.action.PHONE_STATE"/>
+				<action android:name="com.ttsaid.intent.action.CONFIG_CHANGED"/>
 			</intent-filter>
 			<meta-data
 				android:name="android.appwidget.provider"

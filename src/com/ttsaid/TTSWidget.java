@@ -38,7 +38,8 @@ public class TTSWidget extends AppWidgetProvider {
 	public	static	final	String					PREFS_DB = "com.ttsaid.prefs.db";
 	public	static	final	String					PLAY_TIME = "com.ttsaid.intent.action.PLAY_TIME";
 	public	static	final	String					PLAY_AND_ENQUEUE = "com.ttsaid.intent.action.PLAY_AND_ENQUEUE";
-	public	static	final	String					DO_NOTHING = "om.ttsaid.intent.action.DO_NOTHING";
+	public	static	final	String					DO_NOTHING = "com.ttsaid.intent.action.DO_NOTHING";
+	public	static	final	String					CONFIG_CHANGED = "com.ttsaid.intent.action.CONFIG_CHANGED";
 	public	static	final	int						FROM_PERIOD = 800; // default 'from' period 8:00am
 	public	static	final	int						TO_PERIOD = 1900; // default 'to' period 7:00pm
 	public	static	final	int						ALARM_MIN_INTERVAL = 15;
@@ -57,21 +58,20 @@ public class TTSWidget extends AppWidgetProvider {
 		Log.d("TTSWidget onreceive", "receiving action: " + intent.getAction());
 		if(AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
 
-		} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction()) || PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || SMS_RECEIVED_ACTION.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+		} else if (TTSWidget.CONFIG_CHANGED.equals(intent.getAction()) || TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction()) || PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || SMS_RECEIVED_ACTION.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 			SharedPreferences prefs =  context.getSharedPreferences(PREFS_DB, 0);
 
-			if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
+			if (TTSWidget.CONFIG_CHANGED.equals(intent.getAction())) {
+				final Intent si = new Intent(context,TTSService.class);
+				si.setAction(CONFIG_CHANGED);
+				context.startService(si);
+			} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
 				if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
 					if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
 						final Intent si = new Intent(context,TTSService.class);
 						si.setAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 						si.putExtra("phoneNumber",intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
-						Thread t = new Thread(new Runnable() {
-							public void run() {
-								context.startService(si);
-							}
-						});
-						t.start();
+						context.startService(si);
 					}
 				}
 			} else if (PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
@@ -83,12 +83,7 @@ public class TTSWidget extends AppWidgetProvider {
 				if(Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 					si.putExtra("screenEvent",true);
 				}
-				Thread t = new Thread(new Runnable() {
-					public void run() {
-						context.startService(si);
-					}
-				});
-				t.start();
+				context.startService(si);
 			} else if(SMS_RECEIVED_ACTION.equals(intent.getAction()) && prefs.getBoolean("SET_SMS_RECEIVE", false)) {
 				Bundle bundle = intent.getExtras();
 				if(bundle == null) {
@@ -104,12 +99,7 @@ public class TTSWidget extends AppWidgetProvider {
 					si.setAction(SMS_RECEIVED_ACTION);
 					si.putExtra("message",messages[0].getMessageBody());
 					si.putExtra("phoneNumber",messages[0].getOriginatingAddress());
-					Thread t = new Thread(new Runnable() {
-						public void run() {
-							context.startService(si);
-						}
-					});
-					t.start();
+					context.startService(si);
 				}
 			}
 		}

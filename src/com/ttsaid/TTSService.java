@@ -25,6 +25,7 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.telephony.TelephonyManager;
 import android.text.format.Time;
 import android.util.Log;
+import android.widget.Toast;
 
 public class TTSService extends Service {
 	private	enum			playType	{flush,skip,add};
@@ -217,6 +218,7 @@ public class TTSService extends Service {
 		Calendar ct = Calendar.getInstance();
 		ct.setTimeInMillis(System.currentTimeMillis());
 		ct.add(Calendar.MINUTE,(interval < TTSWidget.ALARM_MIN_INTERVAL) ? TTSWidget.ALARM_MIN_INTERVAL : interval);
+		Toast.makeText(TTSService.this,"TTS Alarm set to " + ct.getTime().toLocaleString(),Toast.LENGTH_SHORT).show();
 		alarmManager.set(AlarmManager.RTC_WAKEUP, ct.getTimeInMillis(),alarmIntent);
 	}
 	
@@ -252,7 +254,9 @@ public class TTSService extends Service {
 					BroadcastReceiver receiver = null;
 
 					if(status == TextToSpeech.SUCCESS) {
-						if(TTSWidget.PLAY_TIME.equals(intent.getAction())) {
+						if(TTSWidget.CONFIG_CHANGED.endsWith(intent.getAction())) {
+							enQueue(TTSService.this,prefs.getInt("SET_INTERVAL",0));
+						} else if(TTSWidget.PLAY_TIME.equals(intent.getAction())) {
 							setStream(prefs.getInt("STREAM",0));
 							Log.d(TTSService.this.getPackageName(),"screen event == " + intent.getBooleanExtra("screenEvent",false));
 							if(!intent.getBooleanExtra("screenEvent",false) || prefs.getBoolean("SET_SCREEN_EVENT",true)) {
