@@ -221,7 +221,7 @@ public class TTSActivity extends Activity {
 							}
 
 							public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser) {
-								if(progress != 0 && progress < 15) progress = 15;
+								if(progress > 0 && progress < 15) progress = 15;
 								prefset.putInt("SET_INTERVAL", setTimeInterval(timeView.findViewById(R.id.intervalValue),progress));
 								prefset.commit();
 							}

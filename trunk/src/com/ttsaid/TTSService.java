@@ -217,8 +217,12 @@ public class TTSService extends Service {
 		PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, play,PendingIntent.FLAG_CANCEL_CURRENT);
 		Calendar ct = Calendar.getInstance();
 		ct.setTimeInMillis(System.currentTimeMillis());
-		ct.add(Calendar.MINUTE,(interval < TTSWidget.ALARM_MIN_INTERVAL) ? TTSWidget.ALARM_MIN_INTERVAL : interval);
-		Toast.makeText(TTSService.this,"TTS Alarm set to " + ct.getTime().toLocaleString(),Toast.LENGTH_SHORT).show();
+		if(interval > 0) {
+			ct.add(Calendar.MINUTE,(interval < TTSWidget.ALARM_MIN_INTERVAL) ? TTSWidget.ALARM_MIN_INTERVAL : interval);
+			Toast.makeText(TTSService.this,getString(R.string.ttsAlarmSetTo) + ct.getTime().toLocaleString(),Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(TTSService.this,getString(R.string.alarmInactive),Toast.LENGTH_SHORT).show();
+		}
 		alarmManager.set(AlarmManager.RTC_WAKEUP, ct.getTimeInMillis(),alarmIntent);
 	}
 	

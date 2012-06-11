@@ -45,7 +45,6 @@
     <string name="lang_dt_fr" formatted="false">%d heures et %d minutes</string>
     <string name="lang_dt_ar" formatted="false">%d ساعات و %d دقيقة</string>
     <string name="lang_dt_nl" formatted="false">%d uur en %d minuten</string>
-    <string name="minutes">minutes</string>
-    <string name="inactive">Inactive</string>
-    
+    <string name="alarmInactive">Alarm Inactive</string>
+    <string name="ttsAlarmSetTo">TTS Alarm set to</string>
 </resources>
