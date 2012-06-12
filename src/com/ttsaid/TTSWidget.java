@@ -56,15 +56,22 @@ public class TTSWidget extends AppWidgetProvider {
 		super.onReceive(context, intent);
 
 		Log.d("TTSWidget onreceive", "receiving action: " + intent.getAction());
-		if(AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
-
-		} else if (TTSWidget.CONFIG_CHANGED.equals(intent.getAction()) || TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction()) || PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || SMS_RECEIVED_ACTION.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+		if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || TTSWidget.CONFIG_CHANGED.equals(intent.getAction()) || TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction()) || PLAY_TIME.equals(intent.getAction()) || PLAY_AND_ENQUEUE.equals(intent.getAction()) || SMS_RECEIVED_ACTION.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
 			SharedPreferences prefs =  context.getSharedPreferences(PREFS_DB, 0);
 
-			if (TTSWidget.CONFIG_CHANGED.equals(intent.getAction())) {
-				final Intent si = new Intent(context,TTSService.class);
-				si.setAction(CONFIG_CHANGED);
-				context.startService(si);
+			if(AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
+				SharedPreferences.Editor prefset = prefs.edit();
+				prefset.putInt("LAST_SET_INTERVAL",-1);
+				prefset.commit();
+			} else if (TTSWidget.CONFIG_CHANGED.equals(intent.getAction())) {
+				if(prefs.getInt("LAST_SET_INTERVAL",-1) != prefs.getInt("SET_INTERVAL",0)) {
+					SharedPreferences.Editor prefset = prefs.edit();
+					prefset.putInt("LAST_SET_INTERVAL",prefs.getInt("SET_INTERVAL",0));
+					prefset.commit();
+					final Intent si = new Intent(context,TTSService.class);
+					si.setAction(CONFIG_CHANGED);
+					context.startService(si);
+				}
 			} else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
 				if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
 					if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING) && prefs.getBoolean("SET_CALLER_ID", false)) {
