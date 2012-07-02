@@ -372,7 +372,7 @@ public class TTSActivity extends Activity {
 					public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
 						prefset.putInt("REPEAT_SMS",progress + 1);
 						prefset.commit();
-						((TextView) smsView.findViewById(R.id.repeatSMS)).setText(""+(progress+1));
+						((TextView) smsView.findViewById(R.id.repeatSMS)).setText(String.valueOf(progress+1));
 					}
 				});
 				dlg.setOnCancelListener(new OnCancelListener() {
