@@ -62,14 +62,17 @@ public class TTSService extends Service {
 	{
 		Cursor cursor;
 
+		Log.d("playSMS","repeat:" + String.valueOf(repeat));
 		Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,Uri.encode(number));
 		cursor = context.getContentResolver().query(uri,new String[] { PhoneLookup.DISPLAY_NAME }, null, null, null);
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			number = cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
 		}
-		str = String.format("%s %s. %s",smsDefaultText,number,str);  
+		str = String.format("%s %s. %s",smsDefaultText,number,str);
+		/* play sound */
 		playSound(mTTS, context, str, playType.flush,language);
+		/* do we have to repeat it? */
 		for(int x=1;x < repeat;x++) {
 			playSilence(mTTS, context, 400);
 			playSound(mTTS, context, str,  playType.add,language);
@@ -258,6 +261,10 @@ public class TTSService extends Service {
 					BroadcastReceiver receiver = null;
 
 					if(status == TextToSpeech.SUCCESS) {
+
+						Log.d("REPEAT_SMS", String.valueOf(prefs.getInt("REPEAT_SMS",2)));
+
+						
 						if(TTSWidget.CONFIG_CHANGED.endsWith(intent.getAction())) {
 							enQueue(TTSService.this,prefs.getInt("SET_INTERVAL",0));
 						} else if(TTSWidget.PLAY_TIME.equals(intent.getAction())) {
