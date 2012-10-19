@@ -3,6 +3,7 @@
 
     <string name="app_name">TTS Aid</string>
     <string name="off">Off</string>
+    <string name="on">On</string>
     <string name="spanish">Español</string>
     <string name="english">English</string>
     <string name="screenEvent">Screen Event</string>
@@ -47,4 +48,6 @@
     <string name="lang_dt_nl" formatted="false">%d uur en %d minuten</string>
     <string name="alarmInactive">Alarm Inactive</string>
     <string name="ttsAlarmSetTo">TTS Alarm set to</string>
+    <string name="flashLight">Flash Light</string>
+
 </resources>

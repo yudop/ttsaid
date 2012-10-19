@@ -40,12 +40,12 @@ public class TTSService extends Service {
 
 		Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,Uri.encode(str));
 		cursor = context.getContentResolver().query(uri,new String[] { PhoneLookup.DISPLAY_NAME }, null, null, null);
-		if (cursor.getCount() > 0) {
-			cursor.moveToNext();
-			str = cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+		if (cursor.getCount() <= 0) {
+			return;
 		}
 		/* append incoming call message */
-		str = String.format("%s %s",incomingMessage,str);
+		cursor.moveToNext();
+		str = String.format("%s %s",incomingMessage,cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME)));
 		playSound(mTTS, context, str, playType.flush,language);
 		for(int x=1;x < repeat;x++) {
 			playSilence(mTTS, context,400);
@@ -65,11 +65,11 @@ public class TTSService extends Service {
 		Log.d("playSMS","repeat:" + String.valueOf(repeat));
 		Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,Uri.encode(number));
 		cursor = context.getContentResolver().query(uri,new String[] { PhoneLookup.DISPLAY_NAME }, null, null, null);
-		if (cursor.getCount() > 0) {
-			cursor.moveToNext();
-			number = cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+		if (cursor.getCount() <= 0) {
+			return;
 		}
-		str = String.format("%s %s. %s",smsDefaultText,number,str);
+		cursor.moveToNext();
+		str = String.format("%s %s. %s",smsDefaultText,cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME)),str);
 		/* play sound */
 		playSound(mTTS, context, str, playType.flush,language);
 		/* do we have to repeat it? */
@@ -277,9 +277,9 @@ public class TTSService extends Service {
 								enQueue(TTSService.this,prefs.getInt("SET_INTERVAL",0));
 							}
 						} else if(TTSWidget.SMS_RECEIVED_ACTION.equals(intent.getAction())) {
-							playSMS(mTTS, TTSService.this,intent.getStringExtra("message"),intent.getStringExtra("phoneNumber"),prefs.getString("SET_LANGUAGE", "en"),prefs.getInt("REPEAT_SMS",2),prefs.getString("SMS_MESSAGE","SMS Received!"));
+							playSMS(mTTS, TTSService.this,intent.getStringExtra("message"),intent.getStringExtra("phoneNumber"),prefs.getString("SET_LANGUAGE", "en"),prefs.getInt("REPEAT_SMS",1),prefs.getString("SMS_MESSAGE","SMS Received!"));
 						} else if(TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
-							playCallerId(mTTS,TTSService.this,intent.getStringExtra("phoneNumber"),prefs.getString("INCOMING_MESSAGE","Incoming Call!"),prefs.getInt("REPEAT_CALLER_ID",2),prefs.getString("SET_LANGUAGE", "en"));
+							playCallerId(mTTS,TTSService.this,intent.getStringExtra("phoneNumber"),prefs.getString("INCOMING_MESSAGE","Incoming Call!"),prefs.getInt("REPEAT_CALLER_ID",1),prefs.getString("SET_LANGUAGE", "en"));
 							receiver = new BroadcastReceiver() {
 								@Override
 								public void onReceive(Context context, Intent intent) {

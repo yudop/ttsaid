@@ -36,11 +36,11 @@
 
         <EditText
             android:id="@+id/smsMessage"
-            android:singleLine="true"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dip"
             android:inputType="text"
+            android:singleLine="true"
             android:text="SMS Received from" >
         </EditText>
     </LinearLayout>
@@ -56,13 +56,13 @@
             android:layout_height="wrap_content"
             android:text="@string/repeatMessage"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
+
         <SeekBar
             android:id="@+id/setRepeatSMS"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-
+
         <TextView
             android:id="@+id/repeatSMS"
             android:layout_width="80dp"
@@ -71,7 +71,25 @@
             android:gravity="center_vertical|center_horizontal|center"
             android:text="@string/one"
             android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp" >
+
+        <TextView
+            android:id="@+id/TextViewFlashLight"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/flashLight"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <ToggleButton
+            android:id="@+id/SMSFlashLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

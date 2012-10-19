@@ -45,6 +45,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioGroup;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
@@ -54,6 +55,7 @@ import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.CheckBox;
 import android.widget.TimePicker;
+import android.widget.ToggleButton;
 
 public class TTSActivity extends Activity {
 	private int MY_DATA_CHECK_CODE = 0x0001;
@@ -288,7 +290,7 @@ public class TTSActivity extends Activity {
 				dlg.show();
 			}
 		});
-
+		/* incoming call */
 		((TextView) findViewById(R.id.incomingCall)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final AlertDialog.Builder dlg = new AlertDialog.Builder(TTSActivity.this);
@@ -303,6 +305,18 @@ public class TTSActivity extends Activity {
 						prefset.commit();
 					}
 				});
+				ToggleButton t = (ToggleButton)  callView.findViewById(R.id.phoneFlashLight);
+				if(t != null) {
+					t.setTextOff(getString(R.string.off));
+					t.setTextOn(getString(R.string.on));
+					t.setChecked(prefs.getBoolean("PHONE_FLASH",true));
+					t.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+						public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+							prefset.putBoolean("PHONE_FLASH",arg1);
+							prefset.commit();
+						}
+					});
+				}
 				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setMax(3);
 				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setKeyProgressIncrement(1);
 				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -329,7 +343,7 @@ public class TTSActivity extends Activity {
 						prefset.commit();
 					}
 				});
-				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setProgress(prefs.getInt("REPEAT_CALLER_ID",2)-1);
+				((SeekBar) callView.findViewById(R.id.setRepeatCallerId)).setProgress(prefs.getInt("REPEAT_CALLER_ID",1)-1);
 				((EditText) callView.findViewById(R.id.incomingMessage)).setText(prefs.getString("INCOMING_MESSAGE","Incoming Call!"));
 				dlg.setIcon(R.drawable.address);
 				dlg.setTitle(R.string.incomingCall);
@@ -355,6 +369,18 @@ public class TTSActivity extends Activity {
 						prefset.commit();
 					}
 				});
+				ToggleButton t = (ToggleButton) smsView.findViewById(R.id.SMSFlashLight);
+				if(t != null) {
+					t.setTextOff(getString(R.string.off));
+					t.setTextOn(getString(R.string.on));
+					t.setChecked(prefs.getBoolean("SMS_FLASH",true));
+					t.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+						public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+							prefset.putBoolean("SMS_FLASH",arg1);
+							prefset.commit();
+						}
+					});
+				}
 				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setMax(3);
 				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setKeyProgressIncrement(1);
 				((SeekBar) smsView.findViewById(R.id.setRepeatSMS)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
